@@ -2,6 +2,8 @@ import { useEffect, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addMinutes, format, parse } from 'date-fns';
+import { Modal } from '@/components/Modal';
+import { MultiSelectSearch } from '@/components/MultiSelectSearch';
 import {
   appointmentFormSchema,
   type AppointmentFormValues,
@@ -30,50 +32,6 @@ function getParticipantIds(
     appointment?.participants
       ?.filter((item) => item.participationType === type)
       .map((item) => item.professionalId) ?? []
-  );
-}
-
-function ProfessionalChecklist({
-  options,
-  selected,
-  onChange,
-  emptyLabel,
-}: {
-  options: Professional[];
-  selected: string[];
-  onChange: (ids: string[]) => void;
-  emptyLabel: string;
-}) {
-  if (options.length === 0) {
-    return <p className="text-sm text-slate-500">{emptyLabel}</p>;
-  }
-
-  return (
-    <div className="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-slate-200 p-3">
-      {options.map((professional) => {
-        const checked = selected.includes(professional.id);
-        return (
-          <label
-            key={professional.id}
-            className="flex cursor-pointer items-center gap-2 text-sm text-slate-700"
-          >
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-slate-300"
-              checked={checked}
-              onChange={() => {
-                if (checked) {
-                  onChange(selected.filter((id) => id !== professional.id));
-                } else {
-                  onChange([...selected, professional.id]);
-                }
-              }}
-            />
-            <span>{professional.name}</span>
-          </label>
-        );
-      })}
-    </div>
   );
 }
 
@@ -109,6 +67,15 @@ export function AppointmentFormModal({
 
   const startTime = useWatch({ control, name: 'startTime' });
   const durationMinutes = useWatch({ control, name: 'durationMinutes' });
+
+  const dentistOptions = useMemo(
+    () => dentists.map((item) => ({ value: item.id, label: item.name })),
+    [dentists],
+  );
+  const assistantOptions = useMemo(
+    () => assistants.map((item) => ({ value: item.id, label: item.name })),
+    [assistants],
+  );
 
   const endTimeLabel = useMemo(() => {
     if (!startTime || !durationMinutes || Number(durationMinutes) <= 0) {
@@ -150,192 +117,184 @@ export function AppointmentFormModal({
     });
   }, [open, appointment, createDefaults, reset]);
 
-  if (!open) {
-    return null;
-  }
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="appointment-form-title"
+    <Modal
+      open={open}
+      title={appointment ? 'Editar agendamento' : 'Novo agendamento'}
+      titleId="appointment-form-title"
+      onClose={onClose}
+      className="max-w-xl"
     >
-      <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <h2
-          id="appointment-form-title"
-          className="text-lg font-semibold text-slate-900"
-        >
-          {appointment ? 'Editar agendamento' : 'Novo agendamento'}
-        </h2>
-
-        <form
-          className="mt-4 space-y-3"
-          onSubmit={handleSubmit(async (values) => {
-            await onSubmit(values);
-          })}
-          noValidate
-        >
-          <div>
-            <label htmlFor="patientId" className="mb-1 block text-sm font-medium">
-              Paciente (confirmado) *
-            </label>
-            <select
-              id="patientId"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
-              {...register('patientId')}
-            >
-              <option value="">Selecione</option>
-              {patients.map((patient) => (
-                <option key={patient.id} value={patient.id}>
-                  {patient.name}
-                </option>
-              ))}
-            </select>
-            {errors.patientId && (
-              <p className="mt-1 text-sm text-danger">
-                {errors.patientId.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <p className="mb-1 text-sm font-medium">Dentistas *</p>
-            <p className="mb-2 text-xs text-slate-500">
-              Selecione um ou mais dentistas para o atendimento.
+      <form
+        className="mt-4 space-y-3"
+        onSubmit={handleSubmit(async (values) => {
+          await onSubmit(values);
+        })}
+        noValidate
+      >
+        <div>
+          <label htmlFor="patientId" className="mb-1 block text-sm font-medium">
+            Paciente (confirmado) *
+          </label>
+          <select
+            id="patientId"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+            {...register('patientId')}
+          >
+            <option value="">Selecione</option>
+            {patients.map((patient) => (
+              <option key={patient.id} value={patient.id}>
+                {patient.name}
+              </option>
+            ))}
+          </select>
+          {errors.patientId && (
+            <p className="mt-1 text-sm text-danger">
+              {errors.patientId.message}
             </p>
-            <Controller
-              name="responsibleProfessionalIds"
-              control={control}
-              render={({ field }) => (
-                <ProfessionalChecklist
-                  options={dentists}
-                  selected={field.value ?? []}
-                  onChange={field.onChange}
-                  emptyLabel="Nenhum dentista ativo cadastrado."
-                />
-              )}
-            />
-            {errors.responsibleProfessionalIds && (
-              <p className="mt-1 text-sm text-danger">
-                {errors.responsibleProfessionalIds.message}
-              </p>
-            )}
-          </div>
+          )}
+        </div>
 
-          <div>
-            <p className="mb-1 text-sm font-medium">Auxiliares (opcional)</p>
-            <p className="mb-2 text-xs text-slate-500">
-              Selecione zero ou mais auxiliares.
-            </p>
-            <Controller
-              name="assistantProfessionalIds"
-              control={control}
-              render={({ field }) => (
-                <ProfessionalChecklist
-                  options={assistants}
-                  selected={field.value ?? []}
-                  onChange={field.onChange}
-                  emptyLabel="Nenhum auxiliar ativo cadastrado."
-                />
-              )}
-            />
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div>
-              <label htmlFor="date" className="mb-1 block text-sm font-medium">
-                Data *
-              </label>
-              <input
-                id="date"
-                type="date"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2"
-                {...register('date')}
-              />
-              {errors.date && (
-                <p className="mt-1 text-sm text-danger">{errors.date.message}</p>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="startTime"
-                className="mb-1 block text-sm font-medium"
-              >
-                Início *
-              </label>
-              <input
-                id="startTime"
-                type="time"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2"
-                {...register('startTime')}
-              />
-              {errors.startTime && (
-                <p className="mt-1 text-sm text-danger">
-                  {errors.startTime.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="durationMinutes"
-                className="mb-1 block text-sm font-medium"
-              >
-                Duração (min) *
-              </label>
-              <input
-                id="durationMinutes"
-                type="number"
-                min={15}
-                step={5}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2"
-                {...register('durationMinutes')}
-              />
-              {errors.durationMinutes && (
-                <p className="mt-1 text-sm text-danger">
-                  {errors.durationMinutes.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <p className="text-sm text-slate-600">
-            Horário final calculado: <strong>{endTimeLabel}</strong>
+        <div>
+          <p className="mb-1 text-sm font-medium">Dentistas *</p>
+          <p className="mb-2 text-xs text-slate-500">
+            Busque e selecione um ou mais dentistas.
           </p>
+          <Controller
+            name="responsibleProfessionalIds"
+            control={control}
+            render={({ field }) => (
+              <MultiSelectSearch
+                options={dentistOptions}
+                value={field.value ?? []}
+                onChange={field.onChange}
+                placeholder="Buscar dentistas..."
+                searchPlaceholder="Digite o nome..."
+                emptyLabel="Nenhum dentista ativo cadastrado."
+              />
+            )}
+          />
+          {errors.responsibleProfessionalIds && (
+            <p className="mt-1 text-sm text-danger">
+              {errors.responsibleProfessionalIds.message}
+            </p>
+          )}
+        </div>
 
+        <div>
+          <p className="mb-1 text-sm font-medium">Auxiliares (opcional)</p>
+          <p className="mb-2 text-xs text-slate-500">
+            Busque e selecione zero ou mais auxiliares.
+          </p>
+          <Controller
+            name="assistantProfessionalIds"
+            control={control}
+            render={({ field }) => (
+              <MultiSelectSearch
+                options={assistantOptions}
+                value={field.value ?? []}
+                onChange={field.onChange}
+                placeholder="Buscar auxiliares..."
+                searchPlaceholder="Digite o nome..."
+                emptyLabel="Nenhum auxiliar ativo cadastrado."
+              />
+            )}
+          />
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
           <div>
-            <label htmlFor="notes" className="mb-1 block text-sm font-medium">
-              Observações
+            <label htmlFor="date" className="mb-1 block text-sm font-medium">
+              Data *
             </label>
-            <textarea
-              id="notes"
-              rows={3}
+            <input
+              id="date"
+              type="date"
               className="w-full rounded-lg border border-slate-300 px-3 py-2"
-              {...register('notes')}
+              {...register('date')}
             />
-            {errors.notes && (
-              <p className="mt-1 text-sm text-danger">{errors.notes.message}</p>
+            {errors.date && (
+              <p className="mt-1 text-sm text-danger">{errors.date.message}</p>
             )}
           </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium"
+          <div>
+            <label
+              htmlFor="startTime"
+              className="mb-1 block text-sm font-medium"
             >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-70"
-            >
-              {submitting ? 'Salvando...' : 'Salvar'}
-            </button>
+              Início *
+            </label>
+            <input
+              id="startTime"
+              type="time"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              {...register('startTime')}
+            />
+            {errors.startTime && (
+              <p className="mt-1 text-sm text-danger">
+                {errors.startTime.message}
+              </p>
+            )}
           </div>
-        </form>
-      </div>
-    </div>
+          <div>
+            <label
+              htmlFor="durationMinutes"
+              className="mb-1 block text-sm font-medium"
+            >
+              Duração (min) *
+            </label>
+            <input
+              id="durationMinutes"
+              type="number"
+              min={15}
+              step={5}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2"
+              {...register('durationMinutes')}
+            />
+            {errors.durationMinutes && (
+              <p className="mt-1 text-sm text-danger">
+                {errors.durationMinutes.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <p className="text-sm text-slate-600">
+          Horário final calculado: <strong>{endTimeLabel}</strong>
+        </p>
+
+        <div>
+          <label htmlFor="notes" className="mb-1 block text-sm font-medium">
+            Observações
+          </label>
+          <textarea
+            id="notes"
+            rows={3}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2"
+            {...register('notes')}
+          />
+          {errors.notes && (
+            <p className="mt-1 text-sm text-danger">{errors.notes.message}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover disabled:opacity-70"
+          >
+            {submitting ? 'Salvando...' : 'Salvar'}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }

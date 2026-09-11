@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { QueryState } from '@/components/QueryState';
+import { Modal } from '@/components/Modal';
 import { useAuth } from '@/context/useAuth';
 import {
   createUserSchema,
@@ -190,78 +191,68 @@ export function UsersPage() {
         </QueryState>
       </section>
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-0 sm:items-center sm:p-4"
-          role="dialog"
-          aria-modal="true"
+      <Modal
+        open={modalOpen}
+        title="Novo usuário"
+        titleId="user-form-title"
+        onClose={() => setModalOpen(false)}
+        className="max-w-md"
+      >
+        <p className="mt-1 text-sm text-slate-500">
+          A senha inicial será <strong>1234</strong>.
+        </p>
+        <form
+          className="mt-4 space-y-3"
+          onSubmit={handleSubmit(async (values) => {
+            await createMutation.mutateAsync(values);
+          })}
+          noValidate
         >
-          <div className="w-full rounded-t-2xl bg-white p-6 shadow-xl sm:max-w-md sm:rounded-xl">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Novo usuário
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              A senha inicial será <strong>1234</strong>.
-            </p>
-            <form
-              className="mt-4 space-y-3"
-              onSubmit={handleSubmit(async (values) => {
-                await createMutation.mutateAsync(values);
-              })}
-              noValidate
-            >
-              <div>
-                <label htmlFor="name" className="mb-1 block text-sm font-medium">
-                  Nome *
-                </label>
-                <input
-                  id="name"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2.5"
-                  {...register('name')}
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-danger">{errors.name.message}</p>
-                )}
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="mb-1 block text-sm font-medium"
-                >
-                  E-mail *
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2.5"
-                  {...register('email')}
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-danger">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || createMutation.isPending}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
-                >
-                  {createMutation.isPending ? 'Salvando...' : 'Criar'}
-                </button>
-              </div>
-            </form>
+          <div>
+            <label htmlFor="name" className="mb-1 block text-sm font-medium">
+              Nome *
+            </label>
+            <input
+              id="name"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2.5"
+              {...register('name')}
+            />
+            {errors.name && (
+              <p className="mt-1 text-sm text-danger">{errors.name.message}</p>
+            )}
           </div>
-        </div>
-      )}
+          <div>
+            <label htmlFor="email" className="mb-1 block text-sm font-medium">
+              E-mail *
+            </label>
+            <input
+              id="email"
+              type="email"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2.5"
+              {...register('email')}
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-danger">{errors.email.message}</p>
+            )}
+          </div>
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || createMutation.isPending}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
+            >
+              {createMutation.isPending ? 'Salvando...' : 'Criar'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

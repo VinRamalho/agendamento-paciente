@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Modal } from '@/components/Modal';
 import {
   patientFormSchema,
   type PatientFormValues,
@@ -54,32 +55,20 @@ export function PatientFormModal({
     });
   }, [open, patient, reset]);
 
-  if (!open) {
-    return null;
-  }
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="patient-form-title"
+    <Modal
+      open={open}
+      title={patient ? 'Editar paciente' : 'Novo paciente'}
+      titleId="patient-form-title"
+      onClose={onClose}
     >
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <h2
-          id="patient-form-title"
-          className="text-lg font-semibold text-slate-900"
-        >
-          {patient ? 'Editar paciente' : 'Novo paciente'}
-        </h2>
-
-        <form
-          className="mt-4 space-y-3"
-          onSubmit={handleSubmit(async (values) => {
-            await onSubmit(values);
-          })}
-          noValidate
-        >
+      <form
+        className="mt-4 space-y-3"
+        onSubmit={handleSubmit(async (values) => {
+          await onSubmit(values);
+        })}
+        noValidate
+      >
           <div>
             <label htmlFor="name" className="mb-1 block text-sm font-medium">
               Nome *
@@ -181,7 +170,7 @@ export function PatientFormModal({
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
@@ -198,7 +187,6 @@ export function PatientFormModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
