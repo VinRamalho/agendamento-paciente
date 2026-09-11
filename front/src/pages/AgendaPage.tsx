@@ -8,10 +8,10 @@ import {
   CalendarPlus,
   ChevronLeft,
   ChevronRight,
-  Download,
   List,
   RefreshCw,
 } from 'lucide-react';
+import { AppleLogoIcon, GoogleCalendarIcon } from '@/components/BrandIcons';
 import { QueryState } from '@/components/QueryState';
 import { AgendaCalendar } from '@/features/agenda/AgendaCalendar';
 import {
@@ -210,17 +210,17 @@ export function AgendaPage() {
               <button
                 type="button"
                 onClick={handleExportIcs}
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
               >
-                <Download className="h-4 w-4" aria-hidden />
-                Apple (.ics)
+                <AppleLogoIcon className="h-4 w-4 text-slate-900" />
+                Apple Agenda
               </button>
               <button
                 type="button"
                 onClick={handleExportGoogle}
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-100"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
               >
-                <CalendarDays className="h-4 w-4" aria-hidden />
+                <GoogleCalendarIcon className="h-4 w-4" />
                 Google Agenda
               </button>
             </div>
