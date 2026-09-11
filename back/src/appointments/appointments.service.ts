@@ -238,6 +238,16 @@ export class AppointmentsService {
       );
     }
 
+    let existingStartAt: Date | undefined;
+    if (appointmentId) {
+      const current = await this.appointmentRepository.findOne({
+        where: { id: appointmentId },
+      });
+      existingStartAt = current?.startAt;
+    }
+
+    this.assertNotInPast(startAt, existingStartAt);
+
     const patient = await this.patientRepository.findOne({
       where: { id: input.patientId },
     });
@@ -370,6 +380,27 @@ export class AppointmentsService {
 
       return full;
     });
+  }
+
+  private assertNotInPast(startAt: Date, existingStartAt?: Date): void {
+    const now = Date.now();
+    const toleranceMs = 60_000;
+
+    if (startAt.getTime() >= now - toleranceMs) {
+      return;
+    }
+
+    // Permite salvar o mesmo horário em agendamento já passado (ex.: só notas)
+    if (
+      existingStartAt &&
+      Math.abs(startAt.getTime() - existingStartAt.getTime()) < toleranceMs
+    ) {
+      return;
+    }
+
+    throw new BadRequestException(
+      'Não é possível agendar em data ou horário passado',
+    );
   }
 
   private async assertNoConflicts(

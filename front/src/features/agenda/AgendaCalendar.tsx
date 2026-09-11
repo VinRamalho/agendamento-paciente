@@ -12,7 +12,9 @@ import {
   appointmentsForDay,
   getDayHours,
   agendaTotalMinutes,
+  pastOverlayHeight,
   slotFromClick,
+  isDateTimeInPast,
 } from './calendar-utils';
 
 type AgendaCalendarProps = {
@@ -20,6 +22,7 @@ type AgendaCalendarProps = {
   appointments: Appointment[];
   onSlotClick: (date: string, startTime: string) => void;
   onAppointmentClick: (appointment: Appointment) => void;
+  onPastSlotClick?: () => void;
 };
 
 function DayColumn({

@@ -118,3 +118,35 @@ export function slotFromClick(
     startTime: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
   };
 }
+
+export function isDateTimeInPast(date: string, startTime: string): boolean {
+  const candidate = new Date(`${date}T${startTime}:00`);
+  if (Number.isNaN(candidate.getTime())) {
+    return false;
+  }
+  return candidate.getTime() < Date.now() - 60_000;
+}
+
+/** Altura em px da faixa já passada no dia (para sombrear o calendário). */
+export function pastOverlayHeight(day: Date): number {
+  const now = new Date();
+  const dayStart = new Date(day);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(day);
+  dayEnd.setHours(23, 59, 59, 999);
+
+  if (now < dayStart) {
+    return 0;
+  }
+
+  if (now > dayEnd) {
+    return agendaTotalMinutes() * PX_PER_MINUTE;
+  }
+
+  const minutes = minutesFromAgendaStart(now);
+  if (minutes <= 0) {
+    return 0;
+  }
+
+  return Math.min(agendaTotalMinutes(), minutes) * PX_PER_MINUTE;
+}
