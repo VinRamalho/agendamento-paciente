@@ -8,6 +8,7 @@ const titles: Record<string, string> = {
   '/agenda': 'Agenda',
   '/pacientes': 'Pacientes',
   '/profissionais': 'Profissionais',
+  '/usuarios': 'Usuários',
 };
 
 export function AppLayout() {

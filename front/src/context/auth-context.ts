@@ -5,7 +5,13 @@ export type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isBootstrapping: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  mustChangePassword: boolean;
+  isAdmin: boolean;
+  login: (email: string, password: string) => Promise<AuthUser>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
   logout: () => void;
 };
 

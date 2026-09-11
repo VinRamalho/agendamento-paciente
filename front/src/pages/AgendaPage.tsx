@@ -24,6 +24,11 @@ import {
   appointmentStatusClass,
   appointmentStatusLabel,
 } from '@/utils/labels';
+import {
+  buildAppointmentsIcs,
+  downloadIcsFile,
+  openGoogleCalendarEvent,
+} from '@/utils/ics';
 
 function formatDateTime(value: string): string {
   return format(parseISO(value), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
@@ -134,10 +139,40 @@ export function AgendaPage() {
     }
   };
 
+  const handleExportIcs = () => {
+    const active = appointments.filter((item) => item.status !== 'CANCELLED');
+    if (active.length === 0) {
+      toast.error('Não há agendamentos para exportar neste período.');
+      return;
+    }
+    const content = buildAppointmentsIcs(active);
+    downloadIcsFile(
+      content,
+      `agenda-${startDate}-${endDate}.ics`,
+    );
+    toast.success(
+      'Arquivo .ics baixado. Abra no Apple Calendar ou importe no Google Agenda.',
+    );
+  };
+
+  const handleExportGoogle = () => {
+    const next = appointments.find((item) => item.status !== 'CANCELLED');
+    if (!next) {
+      toast.error('Não há agendamentos para exportar neste período.');
+      return;
+    }
+    openGoogleCalendarEvent(next);
+    if (appointments.filter((item) => item.status !== 'CANCELLED').length > 1) {
+      toast.message(
+        'Google Agenda abre um evento por vez. Use Exportar .ics para todos.',
+      );
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <p className="text-sm capitalize text-slate-700">
             {formatAgendaTitle(anchorDate, viewMode)}
           </p>
@@ -146,16 +181,32 @@ export function AgendaPage() {
             real do atendimento.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => openCreate()}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
-        >
-          Novo agendamento
-        </button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <button
+            type="button"
+            onClick={handleExportIcs}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white"
+          >
+            Exportar .ics (Apple)
+          </button>
+          <button
+            type="button"
+            onClick={handleExportGoogle}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white"
+          >
+            Google Agenda
+          </button>
+          <button
+            type="button"
+            onClick={() => openCreate()}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
+          >
+            Novo agendamento
+          </button>
+        </div>
       </div>
 
-      <section className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      <section className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:p-3">
         <div className="flex rounded-lg border border-slate-200 p-1">
           <button
             type="button"

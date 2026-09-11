@@ -4,4 +4,5 @@ export type PublicUser = {
   email: string;
   role: string;
   status: string;
+  mustChangePassword: boolean;
 };

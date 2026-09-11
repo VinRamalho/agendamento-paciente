@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { MustChangePasswordGuard } from './auth/guards/must-change-password.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DatabaseModule } from './database/database.module';
@@ -35,6 +36,10 @@ import { UsersModule } from './users/users.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: MustChangePasswordGuard,
     },
   ],
 })

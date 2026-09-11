@@ -2,13 +2,15 @@ import { NavLink } from 'react-router-dom';
 import {
   CalendarDays,
   LayoutDashboard,
+  Shield,
   Stethoscope,
   Users,
   X,
 } from 'lucide-react';
+import { useAuth } from '@/context/useAuth';
 import { cn } from '@/lib/utils';
 
-const navItems = [
+const baseNavItems = [
   { to: '/', label: 'Painel', icon: LayoutDashboard, end: true },
   { to: '/agenda', label: 'Agenda', icon: CalendarDays, end: false },
   { to: '/pacientes', label: 'Pacientes', icon: Users, end: false },
@@ -26,6 +28,15 @@ type SidebarProps = {
 };
 
 export function Sidebar({ open, onClose }: SidebarProps) {
+  const { isAdmin } = useAuth();
+
+  const navItems = [
+    ...baseNavItems,
+    ...(isAdmin
+      ? ([{ to: '/usuarios', label: 'Usuários', icon: Shield, end: false }] as const)
+      : []),
+  ];
+
   return (
     <>
       <div
@@ -39,12 +50,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex w-[min(100%,16rem)] flex-col border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
         aria-label="Navegação principal"
       >
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
+        <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4 sm:h-16 sm:px-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-primary">
               Clínica
@@ -61,7 +72,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -77,7 +88,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 )
               }
             >
-              <item.icon className="h-4 w-4" aria-hidden />
+              <item.icon className="h-4 w-4 shrink-0" aria-hidden />
               {item.label}
             </NavLink>
           ))}

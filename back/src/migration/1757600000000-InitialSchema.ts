@@ -60,6 +60,11 @@ export class InitialSchema1757600000000 implements MigrationInterface {
             default: "'ACTIVE'",
           },
           {
+            name: 'must_change_password',
+            type: 'boolean',
+            default: false,
+          },
+          {
             name: 'created_at',
             type: 'timestamptz',
             default: 'CURRENT_TIMESTAMP',

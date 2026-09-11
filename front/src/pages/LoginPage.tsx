@@ -4,13 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/useAuth';
-import {
-  loginSchema,
-  type LoginFormValues,
-} from '@/schemas/login.schema';
+import { loginSchema, type LoginFormValues } from '@/schemas/login.schema';
 
 export function LoginPage() {
-  const { login, isAuthenticated, isBootstrapping } = useAuth();
+  const { login, isAuthenticated, isBootstrapping, mustChangePassword } =
+    useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -36,13 +34,20 @@ export function LoginPage() {
   }
 
   if (isAuthenticated) {
+    if (mustChangePassword) {
+      return <Navigate to="/alterar-senha" replace />;
+    }
     return <Navigate to="/" replace />;
   }
 
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
     try {
-      await login(values.email, values.password);
+      const user = await login(values.email, values.password);
+      if (user.mustChangePassword) {
+        navigate('/alterar-senha', { replace: true });
+        return;
+      }
       const from =
         (location.state as { from?: { pathname?: string } } | null)?.from
           ?.pathname ?? '/';
@@ -57,8 +62,8 @@ export function LoginPage() {
   });
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
+      <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <p className="text-sm font-medium uppercase tracking-wide text-primary">
           Agendamento Odontológico
         </p>
@@ -79,7 +84,7 @@ export function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-primary focus:ring-2"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none ring-primary focus:ring-2"
               aria-invalid={Boolean(errors.email)}
               {...register('email')}
             />
@@ -101,7 +106,7 @@ export function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none ring-primary focus:ring-2"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none ring-primary focus:ring-2"
               aria-invalid={Boolean(errors.password)}
               {...register('password')}
             />

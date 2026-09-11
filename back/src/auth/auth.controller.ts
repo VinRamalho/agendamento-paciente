@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 
 @ApiTags('auth')
@@ -45,5 +47,13 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Não autenticado' })
   me(@CurrentUser() user: User) {
     return this.authService.getProfile(user);
+  }
+
+  @Patch('change-password')
+  @ApiBearerAuth('JWT-auth')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Alterar senha (obrigatório no primeiro acesso)' })
+  changePassword(@CurrentUser() user: User, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(user, dto);
   }
 }

@@ -35,6 +35,7 @@ async function seed(): Promise<void> {
       passwordHash,
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
+      mustChangePassword: false,
     }),
   );
 

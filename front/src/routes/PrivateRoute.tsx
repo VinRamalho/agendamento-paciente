@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/useAuth';
 
 export function PrivateRoute() {
-  const { isAuthenticated, isBootstrapping } = useAuth();
+  const { isAuthenticated, isBootstrapping, mustChangePassword } = useAuth();
   const location = useLocation();
 
   if (isBootstrapping) {
@@ -15,6 +15,23 @@ export function PrivateRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (
+    mustChangePassword &&
+    location.pathname !== '/alterar-senha'
+  ) {
+    return <Navigate to="/alterar-senha" replace />;
+  }
+
+  return <Outlet />;
+}
+
+export function AdminRoute() {
+  const { isAdmin } = useAuth();
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

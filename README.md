@@ -128,9 +128,12 @@ Reverter última migration:
 npm run migration:revert
 ```
 
-## Usuário inicial
+## Usuários e primeiro acesso
 
-Não há dados de demo. Após `migration:run`, rode `npm run seed` se quiser o admin de desenvolvimento, ou cadastre usuários conforme o fluxo da aplicação.
+- Somente **ADMIN** acessa `/usuarios` e cria contas (nome + e-mail).
+- Senha padrão dos novos usuários: `1234`.
+- No primeiro login, o sistema exige troca de senha antes de liberar o restante da aplicação.
+- A agenda permite exportar `.ics` (Apple Calendar / importação no Google) e abrir um evento no Google Agenda.
 
 ## Regras de negócio (MVP)
 

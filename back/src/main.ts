@@ -70,6 +70,7 @@ async function bootstrap(): Promise<void> {
     .addTag('patients', 'Pacientes')
     .addTag('professionals', 'Profissionais')
     .addTag('appointments', 'Agendamentos')
+    .addTag('users', 'Usuários (ADMIN)')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

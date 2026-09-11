@@ -16,3 +16,14 @@ export async function getMeRequest(): Promise<AuthUser> {
   const { data } = await api.get<AuthUser>('/auth/me');
   return data;
 }
+
+export async function changePasswordRequest(
+  currentPassword: string,
+  newPassword: string,
+): Promise<LoginResponse> {
+  const { data } = await api.patch<LoginResponse>('/auth/change-password', {
+    currentPassword,
+    newPassword,
+  });
+  return data;
+}

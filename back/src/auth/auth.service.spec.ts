@@ -20,6 +20,7 @@ describe('AuthService', () => {
     passwordHash: 'hashed',
     role: UserRole.ADMIN,
     status: UserStatus.ACTIVE,
+    mustChangePassword: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -39,6 +40,7 @@ describe('AuthService', () => {
               email: user.email,
               role: user.role,
               status: user.status,
+              mustChangePassword: user.mustChangePassword,
             })),
           },
         },
