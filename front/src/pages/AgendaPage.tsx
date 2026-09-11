@@ -17,6 +17,7 @@ import { AgendaCalendar } from '@/features/agenda/AgendaCalendar';
 import {
   formatAgendaTitle,
   getAgendaRange,
+  isDateTimeInPast,
   shiftAnchor,
   type AgendaViewMode,
 } from '@/features/agenda/calendar-utils';
@@ -109,10 +110,18 @@ export function AgendaPage() {
   const appointments = data?.data ?? [];
 
   const openCreate = (date?: string, startTime?: string) => {
+    const nextDate = date ?? format(anchorDate, 'yyyy-MM-dd');
+    const nextTime = startTime ?? '09:00';
+
+    if (isDateTimeInPast(nextDate, nextTime)) {
+      toast.error('Não é possível agendar em data ou horário passado');
+      return;
+    }
+
     setEditing(null);
     setCreateDefaults({
-      date: date ?? format(anchorDate, 'yyyy-MM-dd'),
-      startTime: startTime ?? '09:00',
+      date: nextDate,
+      startTime: nextTime,
       durationMinutes: 60,
     });
     setModalOpen(true);
@@ -353,6 +362,9 @@ export function AgendaPage() {
           appointments={appointments}
           onSlotClick={(date, startTime) => openCreate(date, startTime)}
           onAppointmentClick={openEdit}
+          onPastSlotClick={() =>
+            toast.error('Não é possível agendar em data ou horário passado')
+          }
         />
 
         {showList && (
@@ -488,6 +500,7 @@ export function AgendaPage() {
       </QueryState>
 
       <AppointmentFormModal
+        key={editing?.id ?? 'new'}
         open={modalOpen}
         appointment={editing}
         createDefaults={createDefaults}

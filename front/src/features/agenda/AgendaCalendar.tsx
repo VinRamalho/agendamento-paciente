@@ -31,16 +31,19 @@ function DayColumn({
   showDayHeader,
   onSlotClick,
   onAppointmentClick,
+  onPastSlotClick,
 }: {
   day: Date;
   appointments: Appointment[];
   showDayHeader: boolean;
   onSlotClick: (date: string, startTime: string) => void;
   onAppointmentClick: (appointment: Appointment) => void;
+  onPastSlotClick?: () => void;
 }) {
   const hours = getDayHours();
   const dayAppointments = appointmentsForDay(appointments, day);
   const columnHeight = agendaTotalMinutes() * PX_PER_MINUTE;
+  const pastHeight = pastOverlayHeight(day);
 
   return (
     <div className="min-w-[160px] flex-1">
@@ -62,10 +65,22 @@ function DayColumn({
           const bounds = event.currentTarget.getBoundingClientRect();
           const offsetY = event.clientY - bounds.top;
           const slot = slotFromClick(day, offsetY);
+          if (isDateTimeInPast(slot.date, slot.startTime)) {
+            onPastSlotClick?.();
+            return;
+          }
           onSlotClick(slot.date, slot.startTime);
         }}
         role="presentation"
       >
+        {pastHeight > 0 && (
+          <div
+            className="pointer-events-none absolute left-0 right-0 top-0 z-10 bg-slate-300/35"
+            style={{ height: pastHeight }}
+            aria-hidden
+          />
+        )}
+
         {hours.map((hour) => {
           const top = (hour - AGENDA_START_HOUR) * 60 * PX_PER_MINUTE;
           return (
@@ -124,6 +139,7 @@ export function AgendaCalendar({
   appointments,
   onSlotClick,
   onAppointmentClick,
+  onPastSlotClick,
 }: AgendaCalendarProps) {
   const hours = getDayHours();
   const columnHeight = agendaTotalMinutes() * PX_PER_MINUTE;
@@ -162,6 +178,7 @@ export function AgendaCalendar({
                 showDayHeader={isWeek}
                 onSlotClick={onSlotClick}
                 onAppointmentClick={onAppointmentClick}
+                onPastSlotClick={onPastSlotClick}
               />
             </div>
           ))}

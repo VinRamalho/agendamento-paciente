@@ -5,7 +5,7 @@ import { addMinutes, format, parse } from 'date-fns';
 import { Modal } from '@/components/Modal';
 import { MultiSelectSearch } from '@/components/MultiSelectSearch';
 import {
-  appointmentFormSchema,
+  createAppointmentFormSchema,
   type AppointmentFormValues,
 } from '@/schemas/appointment.schema';
 import type { Appointment } from '@/types/appointment';
@@ -53,7 +53,16 @@ export function AppointmentFormModal({
     control,
     formState: { errors },
   } = useForm<AppointmentFormValues>({
-    resolver: zodResolver(appointmentFormSchema),
+    resolver: zodResolver(
+      createAppointmentFormSchema({
+        original: appointment
+          ? {
+              date: format(new Date(appointment.startAt), 'yyyy-MM-dd'),
+              startTime: format(new Date(appointment.startAt), 'HH:mm'),
+            }
+          : null,
+      }),
+    ),
     defaultValues: {
       patientId: '',
       responsibleProfessionalIds: [],
@@ -67,6 +76,12 @@ export function AppointmentFormModal({
 
   const startTime = useWatch({ control, name: 'startTime' });
   const durationMinutes = useWatch({ control, name: 'durationMinutes' });
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const minDate =
+    appointment &&
+    format(new Date(appointment.startAt), 'yyyy-MM-dd') < today
+      ? format(new Date(appointment.startAt), 'yyyy-MM-dd')
+      : today;
 
   const dentistOptions = useMemo(
     () => dentists.map((item) => ({ value: item.id, label: item.name })),
@@ -210,6 +225,7 @@ export function AppointmentFormModal({
             <input
               id="date"
               type="date"
+              min={minDate}
               className="w-full rounded-lg border border-slate-300 px-3 py-2"
               {...register('date')}
             />

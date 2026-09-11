@@ -139,7 +139,8 @@ npm run migration:revert
 
 - Pacientes nascem **PENDING**; só pacientes **CONFIRMED** entram em novos agendamentos.
 - Profissionais **INACTIVE** não podem ser vinculados a novos agendamentos.
-- Agendamento exige dentista responsável; auxiliar é opcional.
+- Agendamento exige ao menos um dentista; auxiliar é opcional.
+- Não é permitido criar/reagendar para data ou horário passado.
 - Participantes ficam em `appointment_participants` — permite múltiplos dentistas e auxiliares por atendimento.
 - Conflito de horário do profissional responsável retorna **409** com mensagem em português.
 - Status de agendamento: SCHEDULED → CONFIRMED → COMPLETED; CANCELLED encerra o fluxo.
