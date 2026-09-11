@@ -2,12 +2,10 @@ import { z } from 'zod';
 
 export const appointmentFormSchema = z.object({
   patientId: z.string().uuid('Selecione o paciente'),
-  responsibleProfessionalId: z.string().uuid('Selecione o dentista responsável'),
-  assistantProfessionalId: z
-    .string()
-    .uuid('Auxiliar inválido')
-    .optional()
-    .or(z.literal('')),
+  responsibleProfessionalIds: z
+    .array(z.string().uuid())
+    .min(1, 'Selecione ao menos um dentista'),
+  assistantProfessionalIds: z.array(z.string().uuid()).default([]),
   date: z.string().min(1, 'Data é obrigatória'),
   startTime: z
     .string()
@@ -15,8 +13,9 @@ export const appointmentFormSchema = z.object({
   durationMinutes: z.coerce
     .number({ invalid_type_error: 'Duração inválida' })
     .int('Duração deve ser inteira')
-    .min(1, 'Duração deve ser maior que zero'),
-  notes: z.string().optional().or(z.literal('')),
+    .min(15, 'Duração mínima de 15 minutos')
+    .max(480, 'Duração máxima de 8 horas'),
+  notes: z.string().max(2000, 'Observações muito longas').optional().or(z.literal('')),
 });
 
 export type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;

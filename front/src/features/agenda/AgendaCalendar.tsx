@@ -80,9 +80,10 @@ function DayColumn({
             return null;
           }
 
-          const responsible = appointment.participants?.find(
-            (item) => item.participationType === 'RESPONSIBLE',
-          )?.professional?.name;
+          const team = appointment.participants
+            ?.map((item) => item.professional?.name)
+            .filter(Boolean)
+            .join(', ');
 
           return (
             <button
@@ -102,7 +103,7 @@ function DayColumn({
               </p>
               <p className="truncate text-[11px] opacity-80">
                 {appointment.durationMinutes} min
-                {responsible ? ` · ${responsible}` : ''}
+                {team ? ` · ${team}` : ''}
               </p>
               <p className="truncate text-[11px] opacity-80">
                 {appointmentStatusLabel[appointment.status]}

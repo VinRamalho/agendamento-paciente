@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   patientFormSchema,
   type PatientFormValues,
 } from '@/schemas/patient.schema';
 import type { Patient } from '@/types/patient';
+import { maskCpf, maskPhone } from '@/utils/masks';
 
 type PatientFormModalProps = {
   open: boolean;
@@ -26,6 +27,7 @@ export function PatientFormModal({
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
@@ -45,10 +47,10 @@ export function PatientFormModal({
 
     reset({
       name: patient?.name ?? '',
-      phone: patient?.phone ?? '',
+      phone: patient?.phone ? maskPhone(patient.phone) : '',
       email: patient?.email ?? '',
       birthDate: patient?.birthDate ?? '',
-      cpf: patient?.cpf ?? '',
+      cpf: patient?.cpf ? maskCpf(patient.cpf) : '',
     });
   }, [open, patient, reset]);
 
@@ -80,7 +82,7 @@ export function PatientFormModal({
         >
           <div>
             <label htmlFor="name" className="mb-1 block text-sm font-medium">
-              Nome
+              Nome *
             </label>
             <input
               id="name"
@@ -94,12 +96,25 @@ export function PatientFormModal({
 
           <div>
             <label htmlFor="phone" className="mb-1 block text-sm font-medium">
-              Telefone
+              Telefone *
             </label>
-            <input
-              id="phone"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
-              {...register('phone')}
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="phone"
+                  inputMode="tel"
+                  placeholder="(11) 98888-0000"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  value={field.value}
+                  onChange={(event) =>
+                    field.onChange(maskPhone(event.target.value))
+                  }
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                />
+              )}
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-danger">{errors.phone.message}</p>
@@ -113,6 +128,8 @@ export function PatientFormModal({
             <input
               id="email"
               type="email"
+              placeholder="nome@email.com"
+              autoComplete="email"
               className="w-full rounded-lg border border-slate-300 px-3 py-2"
               {...register('email')}
             />
@@ -140,10 +157,23 @@ export function PatientFormModal({
               <label htmlFor="cpf" className="mb-1 block text-sm font-medium">
                 CPF
               </label>
-              <input
-                id="cpf"
-                className="w-full rounded-lg border border-slate-300 px-3 py-2"
-                {...register('cpf')}
+              <Controller
+                name="cpf"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    id="cpf"
+                    inputMode="numeric"
+                    placeholder="000.000.000-00"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    value={field.value ?? ''}
+                    onChange={(event) =>
+                      field.onChange(maskCpf(event.target.value))
+                    }
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                  />
+                )}
               />
               {errors.cpf && (
                 <p className="mt-1 text-sm text-danger">{errors.cpf.message}</p>

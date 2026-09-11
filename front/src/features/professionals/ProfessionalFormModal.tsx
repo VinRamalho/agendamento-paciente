@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   professionalFormSchema,
   type ProfessionalFormValues,
 } from '@/schemas/professional.schema';
 import type { Professional } from '@/types/professional';
+import { maskPhone } from '@/utils/masks';
 
 type ProfessionalFormModalProps = {
   open: boolean;
@@ -26,6 +27,7 @@ export function ProfessionalFormModal({
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<ProfessionalFormValues>({
     resolver: zodResolver(professionalFormSchema),
@@ -45,7 +47,7 @@ export function ProfessionalFormModal({
     reset({
       name: professional?.name ?? '',
       email: professional?.email ?? '',
-      phone: professional?.phone ?? '',
+      phone: professional?.phone ? maskPhone(professional.phone) : '',
       type: professional?.type ?? 'DENTIST',
     });
   }, [open, professional, reset]);
@@ -78,7 +80,7 @@ export function ProfessionalFormModal({
         >
           <div>
             <label htmlFor="name" className="mb-1 block text-sm font-medium">
-              Nome
+              Nome *
             </label>
             <input
               id="name"
@@ -92,11 +94,13 @@ export function ProfessionalFormModal({
 
           <div>
             <label htmlFor="email" className="mb-1 block text-sm font-medium">
-              E-mail
+              E-mail *
             </label>
             <input
               id="email"
               type="email"
+              placeholder="nome@email.com"
+              autoComplete="email"
               className="w-full rounded-lg border border-slate-300 px-3 py-2"
               {...register('email')}
             />
@@ -107,12 +111,25 @@ export function ProfessionalFormModal({
 
           <div>
             <label htmlFor="phone" className="mb-1 block text-sm font-medium">
-              Telefone
+              Telefone *
             </label>
-            <input
-              id="phone"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
-              {...register('phone')}
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="phone"
+                  inputMode="tel"
+                  placeholder="(11) 99999-0001"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  value={field.value}
+                  onChange={(event) =>
+                    field.onChange(maskPhone(event.target.value))
+                  }
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                />
+              )}
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-danger">{errors.phone.message}</p>
@@ -121,7 +138,7 @@ export function ProfessionalFormModal({
 
           <div>
             <label htmlFor="type" className="mb-1 block text-sm font-medium">
-              Tipo
+              Tipo *
             </label>
             <select
               id="type"

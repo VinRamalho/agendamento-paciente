@@ -19,34 +19,42 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ ! -f .env ]; then
-  echo "==> Criando .env a partir de .env.example"
-  cp .env.example .env
-  echo "    Ajuste DB_PASSWORD e JWT_SECRET no arquivo .env antes de produção."
+if [ ! -f back/.env ]; then
+  echo "==> Criando back/.env a partir de back/.env.example"
+  cp back/.env.example back/.env
+  echo "    Ajuste DB_PASSWORD e JWT_SECRET em back/.env antes de produção."
 fi
 
-if [ ! -f back/.env ]; then
-  echo "==> Criando back/.env a partir de .env"
-  cp .env back/.env
+if [ ! -f front/.env ]; then
+  echo "==> Criando front/.env a partir de front/.env.example"
+  cp front/.env.example front/.env
 fi
+
+COMPOSE_ENV=(--env-file back/.env --env-file front/.env)
 
 echo "==> Subindo containers (build + detach)..."
-docker compose up --build -d
+docker compose "${COMPOSE_ENV[@]}" up --build -d
 
 echo "==> Aguardando Postgres ficar healthy..."
 ATTEMPTS=0
-until docker compose exec -T postgres pg_isready -U "${DB_USERNAME:-postgres}" -d "${DB_DATABASE:-agendamento}" >/dev/null 2>&1; do
+until docker compose "${COMPOSE_ENV[@]}" exec -T postgres pg_isready -U "${DB_USERNAME:-postgres}" -d "${DB_DATABASE:-agendamento}" >/dev/null 2>&1; do
   ATTEMPTS=$((ATTEMPTS + 1))
   if [ "$ATTEMPTS" -ge 30 ]; then
     echo "Erro: Postgres não ficou pronto a tempo."
-    docker compose ps
+    docker compose "${COMPOSE_ENV[@]}" ps
     exit 1
   fi
   sleep 2
 done
 
 echo "==> Executando migrations (somente schema)..."
-docker compose exec -T back npm run migration:run
+docker compose "${COMPOSE_ENV[@]}" exec -T back npm run migration:run
+
+# shellcheck source=/dev/null
+set -a
+source back/.env
+source front/.env
+set +a
 
 echo ""
 echo "==> Aplicação iniciada com sucesso!"

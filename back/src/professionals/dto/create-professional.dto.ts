@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsString,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -22,10 +23,13 @@ export class CreateProfessionalDto {
   @MaxLength(255)
   email!: string;
 
-  @ApiProperty({ example: '11999990001' })
+  @ApiProperty({ example: '(11) 99999-0001' })
   @IsString()
   @IsNotEmpty({ message: 'Telefone é obrigatório' })
   @MaxLength(20)
+  @Matches(/^[\d\s()\-]{10,20}$/, {
+    message: 'Telefone inválido',
+  })
   phone!: string;
 
   @ApiProperty({ enum: ProfessionalType, example: ProfessionalType.DENTIST })

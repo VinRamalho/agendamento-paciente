@@ -31,6 +31,7 @@ describe('AppointmentsService', () => {
   };
   const professionalRepository = {
     findOne: jest.fn(),
+    findBy: jest.fn(),
   };
 
   const manager = {
@@ -77,7 +78,7 @@ describe('AppointmentsService', () => {
     await expect(
       service.create({
         patientId: 'p1',
-        responsibleProfessionalId: 'd1',
+        responsibleProfessionalIds: ['d1'],
         date: '2026-09-15',
         startTime: '14:00',
         durationMinutes: 60,
@@ -90,12 +91,14 @@ describe('AppointmentsService', () => {
       id: 'p1',
       status: PatientStatus.CONFIRMED,
     });
-    professionalRepository.findOne.mockResolvedValue({
-      id: 'd1',
-      name: 'Dr. João',
-      status: ProfessionalStatus.ACTIVE,
-      type: ProfessionalType.DENTIST,
-    });
+    professionalRepository.findBy = jest.fn().mockResolvedValue([
+      {
+        id: 'd1',
+        name: 'Dr. João',
+        status: ProfessionalStatus.ACTIVE,
+        type: ProfessionalType.DENTIST,
+      },
+    ]);
 
     const qb = {
       innerJoinAndSelect: jest.fn().mockReturnThis(),
@@ -110,7 +113,7 @@ describe('AppointmentsService', () => {
     await expect(
       service.create({
         patientId: 'p1',
-        responsibleProfessionalId: 'd1',
+        responsibleProfessionalIds: ['d1'],
         date: '2026-09-15',
         startTime: '14:00',
         durationMinutes: 60,

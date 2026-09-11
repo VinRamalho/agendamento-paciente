@@ -1,5 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
+  ArrayUnique,
+  IsArray,
   IsDateString,
   IsInt,
   IsNotEmpty,
@@ -7,6 +10,7 @@ import {
   IsString,
   IsUUID,
   Matches,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -16,14 +20,25 @@ export class CreateAppointmentDto {
   @IsUUID('4', { message: 'Paciente inválido' })
   patientId!: string;
 
-  @ApiProperty({ description: 'Dentista responsável' })
-  @IsUUID('4', { message: 'Dentista responsável inválido' })
-  responsibleProfessionalId!: string;
+  @ApiProperty({
+    type: [String],
+    description: 'Um ou mais dentistas responsáveis',
+  })
+  @IsArray({ message: 'Dentistas inválidos' })
+  @ArrayMinSize(1, { message: 'Informe ao menos um dentista' })
+  @ArrayUnique({ message: 'Dentistas duplicados não são permitidos' })
+  @IsUUID('4', { each: true, message: 'Dentista inválido' })
+  responsibleProfessionalIds!: string[];
 
-  @ApiPropertyOptional({ description: 'Auxiliar (opcional)' })
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Zero ou mais auxiliares',
+  })
   @IsOptional()
-  @IsUUID('4', { message: 'Auxiliar inválido' })
-  assistantProfessionalId?: string | null;
+  @IsArray({ message: 'Auxiliares inválidos' })
+  @ArrayUnique({ message: 'Auxiliares duplicados não são permitidos' })
+  @IsUUID('4', { each: true, message: 'Auxiliar inválido' })
+  assistantProfessionalIds?: string[];
 
   @ApiProperty({ example: '2026-09-15', description: 'Data (YYYY-MM-DD)' })
   @IsDateString({}, { message: 'Data inválida' })
@@ -39,7 +54,8 @@ export class CreateAppointmentDto {
 
   @ApiProperty({ example: 60 })
   @IsInt({ message: 'Duração deve ser um número inteiro' })
-  @Min(1, { message: 'Duração deve ser maior que zero' })
+  @Min(15, { message: 'Duração mínima de 15 minutos' })
+  @Max(480, { message: 'Duração máxima de 8 horas' })
   durationMinutes!: number;
 
   @ApiPropertyOptional()

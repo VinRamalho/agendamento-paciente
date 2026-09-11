@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import {
   AppointmentStatus,
   ParticipationType,
@@ -31,8 +31,8 @@ import { AppointmentConflictException } from './exceptions/appointment-conflict.
 
 type ScheduleInput = {
   patientId: string;
-  responsibleProfessionalId: string;
-  assistantProfessionalId?: string | null;
+  responsibleProfessionalIds: string[];
+  assistantProfessionalIds: string[];
   date: string;
   startTime: string;
   durationMinutes: number;
@@ -54,7 +54,15 @@ export class AppointmentsService {
   ) {}
 
   async create(dto: CreateAppointmentDto): Promise<Appointment> {
-    return this.saveAppointment(dto);
+    return this.saveAppointment({
+      patientId: dto.patientId,
+      responsibleProfessionalIds: dto.responsibleProfessionalIds,
+      assistantProfessionalIds: dto.assistantProfessionalIds ?? [],
+      date: dto.date,
+      startTime: dto.startTime,
+      durationMinutes: dto.durationMinutes,
+      notes: dto.notes,
+    });
   }
 
   async update(id: string, dto: UpdateAppointmentDto): Promise<Appointment> {
@@ -71,21 +79,22 @@ export class AppointmentsService {
 
     const merged: ScheduleInput = {
       patientId: dto.patientId ?? existing.patientId,
-      responsibleProfessionalId:
-        dto.responsibleProfessionalId ?? this.getResponsibleId(existing) ?? '',
-      assistantProfessionalId:
-        dto.assistantProfessionalId !== undefined
-          ? dto.assistantProfessionalId
-          : this.getAssistantId(existing),
+      responsibleProfessionalIds:
+        dto.responsibleProfessionalIds ??
+        this.getParticipantIds(existing, ParticipationType.RESPONSIBLE),
+      assistantProfessionalIds:
+        dto.assistantProfessionalIds !== undefined
+          ? (dto.assistantProfessionalIds ?? [])
+          : this.getParticipantIds(existing, ParticipationType.ASSISTANT),
       date: dto.date ?? this.toDatePart(existing.startAt),
       startTime: dto.startTime ?? this.toTimePart(existing.startAt),
       durationMinutes: dto.durationMinutes ?? existing.durationMinutes,
       notes: dto.notes !== undefined ? dto.notes : existing.notes,
     };
 
-    if (!merged.responsibleProfessionalId) {
+    if (merged.responsibleProfessionalIds.length === 0) {
       throw new BadRequestException(
-        'Agendamento precisa de um profissional responsável',
+        'Agendamento precisa de ao menos um dentista',
       );
     }
 
@@ -200,16 +209,23 @@ export class AppointmentsService {
     input: ScheduleInput,
     appointmentId?: string,
   ): Promise<Appointment> {
-    if (input.durationMinutes <= 0) {
-      throw new BadRequestException('Duração deve ser maior que zero');
+    if (input.durationMinutes < 15 || input.durationMinutes > 480) {
+      throw new BadRequestException(
+        'Duração deve estar entre 15 e 480 minutos',
+      );
     }
 
-    if (
-      input.assistantProfessionalId &&
-      input.assistantProfessionalId === input.responsibleProfessionalId
-    ) {
+    const dentistIds = [...new Set(input.responsibleProfessionalIds)];
+    const assistantIds = [...new Set(input.assistantProfessionalIds)];
+
+    if (dentistIds.length === 0) {
+      throw new BadRequestException('Informe ao menos um dentista');
+    }
+
+    const overlap = dentistIds.filter((id) => assistantIds.includes(id));
+    if (overlap.length > 0) {
       throw new BadRequestException(
-        'O auxiliar deve ser diferente do dentista responsável',
+        'O mesmo profissional não pode ser dentista e auxiliar no mesmo atendimento',
       );
     }
 
@@ -234,44 +250,50 @@ export class AppointmentsService {
       );
     }
 
-    const responsible = await this.professionalRepository.findOne({
-      where: { id: input.responsibleProfessionalId },
+    const dentists = await this.professionalRepository.findBy({
+      id: In(dentistIds),
     });
-    if (!responsible) {
-      throw new NotFoundException('Dentista responsável não encontrado');
+    if (dentists.length !== dentistIds.length) {
+      throw new NotFoundException('Um ou mais dentistas não foram encontrados');
     }
-    if (responsible.status !== ProfessionalStatus.ACTIVE) {
-      throw new BadRequestException(
-        'Profissional responsável inativo não pode ser agendado',
-      );
-    }
-    if (responsible.type !== ProfessionalType.DENTIST) {
-      throw new BadRequestException('O responsável deve ser um dentista');
-    }
-
-    let assistant: Professional | null = null;
-    if (input.assistantProfessionalId) {
-      assistant = await this.professionalRepository.findOne({
-        where: { id: input.assistantProfessionalId },
-      });
-      if (!assistant) {
-        throw new NotFoundException('Auxiliar não encontrado');
-      }
-      if (assistant.status !== ProfessionalStatus.ACTIVE) {
-        throw new BadRequestException('Auxiliar inativo não pode ser agendado');
-      }
-      if (assistant.type !== ProfessionalType.ASSISTANT) {
+    for (const dentist of dentists) {
+      if (dentist.status !== ProfessionalStatus.ACTIVE) {
         throw new BadRequestException(
-          'O auxiliar selecionado precisa ser do tipo auxiliar',
+          `Dentista inativo não pode ser agendado: ${dentist.name}`,
+        );
+      }
+      if (dentist.type !== ProfessionalType.DENTIST) {
+        throw new BadRequestException(
+          `Profissional deve ser dentista: ${dentist.name}`,
         );
       }
     }
 
-    const professionalIds = [responsible.id];
-    if (assistant) {
-      professionalIds.push(assistant.id);
+    let assistants: Professional[] = [];
+    if (assistantIds.length > 0) {
+      assistants = await this.professionalRepository.findBy({
+        id: In(assistantIds),
+      });
+      if (assistants.length !== assistantIds.length) {
+        throw new NotFoundException(
+          'Um ou mais auxiliares não foram encontrados',
+        );
+      }
+      for (const assistant of assistants) {
+        if (assistant.status !== ProfessionalStatus.ACTIVE) {
+          throw new BadRequestException(
+            `Auxiliar inativo não pode ser agendado: ${assistant.name}`,
+          );
+        }
+        if (assistant.type !== ProfessionalType.ASSISTANT) {
+          throw new BadRequestException(
+            `Profissional deve ser auxiliar: ${assistant.name}`,
+          );
+        }
+      }
     }
 
+    const professionalIds = [...dentistIds, ...assistantIds];
     await this.assertNoConflicts(
       professionalIds,
       startAt,
@@ -316,22 +338,21 @@ export class AppointmentsService {
       }
 
       const participants = [
-        participantRepo.create({
-          appointmentId: appointment.id,
-          professionalId: responsible.id,
-          participationType: ParticipationType.RESPONSIBLE,
-        }),
-      ];
-
-      if (assistant) {
-        participants.push(
+        ...dentistIds.map((professionalId) =>
           participantRepo.create({
             appointmentId: appointment.id,
-            professionalId: assistant.id,
+            professionalId,
+            participationType: ParticipationType.RESPONSIBLE,
+          }),
+        ),
+        ...assistantIds.map((professionalId) =>
+          participantRepo.create({
+            appointmentId: appointment.id,
+            professionalId,
             participationType: ParticipationType.ASSISTANT,
           }),
-        );
-      }
+        ),
+      ];
 
       await participantRepo.save(participants);
 
@@ -386,19 +407,14 @@ export class AppointmentsService {
     }
   }
 
-  private getResponsibleId(appointment: Appointment): string | null {
+  private getParticipantIds(
+    appointment: Appointment,
+    type: ParticipationType,
+  ): string[] {
     return (
-      appointment.participants?.find(
-        (item) => item.participationType === ParticipationType.RESPONSIBLE,
-      )?.professionalId ?? null
-    );
-  }
-
-  private getAssistantId(appointment: Appointment): string | null {
-    return (
-      appointment.participants?.find(
-        (item) => item.participationType === ParticipationType.ASSISTANT,
-      )?.professionalId ?? null
+      appointment.participants
+        ?.filter((item) => item.participationType === type)
+        .map((item) => item.professionalId) ?? []
     );
   }
 

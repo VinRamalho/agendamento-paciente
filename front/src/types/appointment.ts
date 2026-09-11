@@ -44,8 +44,8 @@ export type AppointmentsListResponse = {
 
 export type AppointmentInput = {
   patientId: string;
-  responsibleProfessionalId: string;
-  assistantProfessionalId?: string | null;
+  responsibleProfessionalIds: string[];
+  assistantProfessionalIds?: string[];
   date: string;
   startTime: string;
   durationMinutes: number;

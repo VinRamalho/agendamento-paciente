@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addMinutes, format, parse } from 'date-fns';
 import {
@@ -22,13 +22,58 @@ type AppointmentFormModalProps = {
   onSubmit: (values: AppointmentFormValues) => Promise<void>;
 };
 
-function getParticipantId(
+function getParticipantIds(
   appointment: Appointment | null | undefined,
   type: 'RESPONSIBLE' | 'ASSISTANT',
-): string {
+): string[] {
   return (
-    appointment?.participants?.find((item) => item.participationType === type)
-      ?.professionalId ?? ''
+    appointment?.participants
+      ?.filter((item) => item.participationType === type)
+      .map((item) => item.professionalId) ?? []
+  );
+}
+
+function ProfessionalChecklist({
+  options,
+  selected,
+  onChange,
+  emptyLabel,
+}: {
+  options: Professional[];
+  selected: string[];
+  onChange: (ids: string[]) => void;
+  emptyLabel: string;
+}) {
+  if (options.length === 0) {
+    return <p className="text-sm text-slate-500">{emptyLabel}</p>;
+  }
+
+  return (
+    <div className="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-slate-200 p-3">
+      {options.map((professional) => {
+        const checked = selected.includes(professional.id);
+        return (
+          <label
+            key={professional.id}
+            className="flex cursor-pointer items-center gap-2 text-sm text-slate-700"
+          >
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-slate-300"
+              checked={checked}
+              onChange={() => {
+                if (checked) {
+                  onChange(selected.filter((id) => id !== professional.id));
+                } else {
+                  onChange([...selected, professional.id]);
+                }
+              }}
+            />
+            <span>{professional.name}</span>
+          </label>
+        );
+      })}
+    </div>
   );
 }
 
@@ -53,8 +98,8 @@ export function AppointmentFormModal({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
       patientId: '',
-      responsibleProfessionalId: '',
-      assistantProfessionalId: '',
+      responsibleProfessionalIds: [],
+      assistantProfessionalIds: [],
       date: format(new Date(), 'yyyy-MM-dd'),
       startTime: '09:00',
       durationMinutes: 60,
@@ -84,14 +129,14 @@ export function AppointmentFormModal({
 
     reset({
       patientId: appointment?.patientId ?? createDefaults?.patientId ?? '',
-      responsibleProfessionalId:
-        getParticipantId(appointment, 'RESPONSIBLE') ||
-        createDefaults?.responsibleProfessionalId ||
-        '',
-      assistantProfessionalId:
-        getParticipantId(appointment, 'ASSISTANT') ||
-        createDefaults?.assistantProfessionalId ||
-        '',
+      responsibleProfessionalIds:
+        getParticipantIds(appointment, 'RESPONSIBLE').length > 0
+          ? getParticipantIds(appointment, 'RESPONSIBLE')
+          : (createDefaults?.responsibleProfessionalIds ?? []),
+      assistantProfessionalIds:
+        getParticipantIds(appointment, 'ASSISTANT').length > 0
+          ? getParticipantIds(appointment, 'ASSISTANT')
+          : (createDefaults?.assistantProfessionalIds ?? []),
       date:
         appointment
           ? format(new Date(appointment.startAt), 'yyyy-MM-dd')
@@ -133,7 +178,7 @@ export function AppointmentFormModal({
         >
           <div>
             <label htmlFor="patientId" className="mb-1 block text-sm font-medium">
-              Paciente (confirmado)
+              Paciente (confirmado) *
             </label>
             <select
               id="patientId"
@@ -155,56 +200,52 @@ export function AppointmentFormModal({
           </div>
 
           <div>
-            <label
-              htmlFor="responsibleProfessionalId"
-              className="mb-1 block text-sm font-medium"
-            >
-              Dentista responsável
-            </label>
-            <select
-              id="responsibleProfessionalId"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
-              {...register('responsibleProfessionalId')}
-            >
-              <option value="">Selecione</option>
-              {dentists.map((dentist) => (
-                <option key={dentist.id} value={dentist.id}>
-                  {dentist.name}
-                </option>
-              ))}
-            </select>
-            {errors.responsibleProfessionalId && (
+            <p className="mb-1 text-sm font-medium">Dentistas *</p>
+            <p className="mb-2 text-xs text-slate-500">
+              Selecione um ou mais dentistas para o atendimento.
+            </p>
+            <Controller
+              name="responsibleProfessionalIds"
+              control={control}
+              render={({ field }) => (
+                <ProfessionalChecklist
+                  options={dentists}
+                  selected={field.value ?? []}
+                  onChange={field.onChange}
+                  emptyLabel="Nenhum dentista ativo cadastrado."
+                />
+              )}
+            />
+            {errors.responsibleProfessionalIds && (
               <p className="mt-1 text-sm text-danger">
-                {errors.responsibleProfessionalId.message}
+                {errors.responsibleProfessionalIds.message}
               </p>
             )}
           </div>
 
           <div>
-            <label
-              htmlFor="assistantProfessionalId"
-              className="mb-1 block text-sm font-medium"
-            >
-              Auxiliar (opcional)
-            </label>
-            <select
-              id="assistantProfessionalId"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2"
-              {...register('assistantProfessionalId')}
-            >
-              <option value="">Nenhum</option>
-              {assistants.map((assistant) => (
-                <option key={assistant.id} value={assistant.id}>
-                  {assistant.name}
-                </option>
-              ))}
-            </select>
+            <p className="mb-1 text-sm font-medium">Auxiliares (opcional)</p>
+            <p className="mb-2 text-xs text-slate-500">
+              Selecione zero ou mais auxiliares.
+            </p>
+            <Controller
+              name="assistantProfessionalIds"
+              control={control}
+              render={({ field }) => (
+                <ProfessionalChecklist
+                  options={assistants}
+                  selected={field.value ?? []}
+                  onChange={field.onChange}
+                  emptyLabel="Nenhum auxiliar ativo cadastrado."
+                />
+              )}
+            />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <label htmlFor="date" className="mb-1 block text-sm font-medium">
-                Data
+                Data *
               </label>
               <input
                 id="date"
@@ -221,7 +262,7 @@ export function AppointmentFormModal({
                 htmlFor="startTime"
                 className="mb-1 block text-sm font-medium"
               >
-                Início
+                Início *
               </label>
               <input
                 id="startTime"
@@ -240,12 +281,13 @@ export function AppointmentFormModal({
                 htmlFor="durationMinutes"
                 className="mb-1 block text-sm font-medium"
               >
-                Duração (min)
+                Duração (min) *
               </label>
               <input
                 id="durationMinutes"
                 type="number"
-                min={1}
+                min={15}
+                step={5}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2"
                 {...register('durationMinutes')}
               />
@@ -271,6 +313,9 @@ export function AppointmentFormModal({
               className="w-full rounded-lg border border-slate-300 px-3 py-2"
               {...register('notes')}
             />
+            {errors.notes && (
+              <p className="mt-1 text-sm text-danger">{errors.notes.message}</p>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

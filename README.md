@@ -16,11 +16,10 @@ Estrutura alinhada ao `app-sol` (`front/` + `back/` + TypeORM). Build Docker ins
 
 ```
 agendamento/
-├── front/                 # SPA React
-├── back/                  # API NestJS
+├── front/                 # SPA React (+ front/.env)
+├── back/                  # API NestJS (+ back/.env)
 ├── docker-compose.yml
 ├── start-docker.sh
-├── .env.example
 └── README.md
 ```
 
@@ -49,11 +48,11 @@ agendamento/
 ## Configuração
 
 ```bash
-cp .env.example .env
-cp .env.example back/.env
+cp back/.env.example back/.env
+cp front/.env.example front/.env
 ```
 
-Ajuste `DB_PASSWORD` e `JWT_SECRET` antes de qualquer ambiente real.
+Ajuste `DB_PASSWORD` e `JWT_SECRET` em `back/.env` antes de qualquer ambiente real.
 
 ## Subir com Docker
 
@@ -93,11 +92,11 @@ docker compose up -d postgres
 ```
 
 ```bash
-cd back && cp ../.env.example .env && npm install && npm run start:dev
+cd back && cp .env.example .env && npm install && npm run start:dev
 ```
 
 ```bash
-cd front && npm install && npm run dev
+cd front && cp .env.example .env && npm install && npm run dev
 ```
 
 ## Migrations e seed
@@ -138,7 +137,7 @@ Não há dados de demo. Após `migration:run`, rode `npm run seed` se quiser o a
 - Pacientes nascem **PENDING**; só pacientes **CONFIRMED** entram em novos agendamentos.
 - Profissionais **INACTIVE** não podem ser vinculados a novos agendamentos.
 - Agendamento exige dentista responsável; auxiliar é opcional.
-- Participantes ficam em `appointment_participants` (não há `dentist_id`/`assistant_id` na tabela).
+- Participantes ficam em `appointment_participants` — permite múltiplos dentistas e auxiliares por atendimento.
 - Conflito de horário do profissional responsável retorna **409** com mensagem em português.
 - Status de agendamento: SCHEDULED → CONFIRMED → COMPLETED; CANCELLED encerra o fluxo.
 - Soft-status: sem DELETE físico nas entidades principais.

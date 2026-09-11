@@ -19,14 +19,20 @@ export class CreatePatientDto {
   @MaxLength(255)
   name!: string;
 
-  @ApiProperty({ example: '11988880001' })
+  @ApiProperty({ example: '(11) 98888-0001' })
   @IsString()
   @IsNotEmpty({ message: 'Telefone é obrigatório' })
   @MaxLength(20)
+  @Matches(/^[\d\s()\-]{10,20}$/, {
+    message: 'Telefone inválido',
+  })
   phone!: string;
 
   @ApiPropertyOptional({ example: 'carlos@example.com' })
   @IsOptional()
+  @ValidateIf(
+    (_, value) => value !== null && value !== undefined && value !== '',
+  )
   @IsEmail({}, { message: 'E-mail inválido' })
   @MaxLength(255)
   email?: string | null;

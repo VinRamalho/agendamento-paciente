@@ -112,10 +112,8 @@ export function AgendaPage() {
   const handleSubmit = async (values: AppointmentFormValues) => {
     const payload = {
       patientId: values.patientId,
-      responsibleProfessionalId: values.responsibleProfessionalId,
-      assistantProfessionalId: values.assistantProfessionalId
-        ? values.assistantProfessionalId
-        : null,
+      responsibleProfessionalIds: values.responsibleProfessionalIds,
+      assistantProfessionalIds: values.assistantProfessionalIds ?? [],
       date: values.date,
       startTime: values.startTime,
       durationMinutes: Number(values.durationMinutes),
@@ -265,9 +263,11 @@ export function AgendaPage() {
                   </thead>
                   <tbody>
                     {appointments.map((appointment) => {
-                      const responsible = appointment.participants?.find(
-                        (item) => item.participationType === 'RESPONSIBLE',
-                      )?.professional?.name;
+                      const team =
+                        appointment.participants
+                          ?.map((item) => item.professional?.name)
+                          .filter(Boolean)
+                          .join(', ') || '—';
 
                       return (
                         <tr
@@ -280,9 +280,7 @@ export function AgendaPage() {
                           <td className="px-4 py-3 font-medium">
                             {appointment.patient?.name ?? '—'}
                           </td>
-                          <td className="px-4 py-3 text-slate-600">
-                            {responsible ?? '—'}
-                          </td>
+                          <td className="px-4 py-3 text-slate-600">{team}</td>
                           <td className="px-4 py-3">
                             <span
                               className={`rounded-full px-2.5 py-1 text-xs font-medium ${appointmentStatusClass(appointment.status)}`}
