@@ -3,6 +3,15 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import {
+  CalendarDays,
+  CalendarPlus,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  List,
+  RefreshCw,
+} from 'lucide-react';
 import { QueryState } from '@/components/QueryState';
 import { AgendaCalendar } from '@/features/agenda/AgendaCalendar';
 import {
@@ -29,6 +38,7 @@ import {
   downloadIcsFile,
   openGoogleCalendarEvent,
 } from '@/utils/ics';
+import { cn } from '@/lib/utils';
 
 function formatDateTime(value: string): string {
   return format(parseISO(value), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
@@ -171,7 +181,7 @@ export function AgendaPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-sm capitalize text-slate-700">
             {formatAgendaTitle(anchorDate, viewMode)}
@@ -181,95 +191,150 @@ export function AgendaPage() {
             real do atendimento.
           </p>
         </div>
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <button
-            type="button"
-            onClick={handleExportIcs}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white"
-          >
-            Exportar .ics (Apple)
-          </button>
-          <button
-            type="button"
-            onClick={handleExportGoogle}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-white"
-          >
-            Google Agenda
-          </button>
+
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
+          <div className="space-y-1.5 sm:text-right">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Exportar período
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleExportIcs}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                Apple (.ics)
+              </button>
+              <button
+                type="button"
+                onClick={handleExportGoogle}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-100"
+              >
+                <CalendarDays className="h-4 w-4" aria-hidden />
+                Google Agenda
+              </button>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={() => openCreate()}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover sm:w-auto"
           >
+            <CalendarPlus className="h-4 w-4" aria-hidden />
             Novo agendamento
           </button>
         </div>
       </div>
 
-      <section className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:p-3">
-        <div className="flex rounded-lg border border-slate-200 p-1">
-          <button
-            type="button"
-            onClick={() => setViewMode('day')}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-              viewMode === 'day'
-                ? 'bg-blue-50 text-primary'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Dia
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('week')}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium ${
-              viewMode === 'week'
-                ? 'bg-blue-50 text-primary'
-                : 'text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            Semana
-          </button>
+      <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Visualização
+            </p>
+            <div
+              className="inline-flex rounded-lg bg-slate-100 p-1"
+              role="group"
+              aria-label="Modo de visualização"
+            >
+              <button
+                type="button"
+                onClick={() => setViewMode('day')}
+                className={cn(
+                  'rounded-md px-4 py-2 text-sm font-semibold transition',
+                  viewMode === 'day'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-white hover:text-slate-900',
+                )}
+              >
+                Dia
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('week')}
+                className={cn(
+                  'rounded-md px-4 py-2 text-sm font-semibold transition',
+                  viewMode === 'week'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-white hover:text-slate-900',
+                )}
+              >
+                Semana
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Navegação
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setAnchorDate((current) => shiftAnchor(current, viewMode, -1))
+                }
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                <ChevronLeft className="h-4 w-4" aria-hidden />
+                Anterior
+              </button>
+              <button
+                type="button"
+                onClick={() => setAnchorDate(new Date())}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+              >
+                <CalendarDays className="h-4 w-4" aria-hidden />
+                Hoje
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setAnchorDate((current) => shiftAnchor(current, viewMode, 1))
+                }
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Próximo
+                <ChevronRight className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              Ações
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                disabled={isFetching}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-60"
+              >
+                <RefreshCw
+                  className={cn('h-4 w-4', isFetching && 'animate-spin')}
+                  aria-hidden
+                />
+                {isFetching ? 'Atualizando...' : 'Atualizar'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowList((value) => !value)}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                  showList
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    : 'border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100',
+                )}
+              >
+                <List className="h-4 w-4" aria-hidden />
+                {showList ? 'Ocultar lista' : 'Ver lista'}
+              </button>
+            </div>
+          </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setAnchorDate((current) => shiftAnchor(current, viewMode, -1))}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-        >
-          Anterior
-        </button>
-        <button
-          type="button"
-          onClick={() => setAnchorDate(new Date())}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-        >
-          Hoje
-        </button>
-        <button
-          type="button"
-          onClick={() => setAnchorDate((current) => shiftAnchor(current, viewMode, 1))}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-        >
-          Próximo
-        </button>
-
-        <button
-          type="button"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-60"
-        >
-          {isFetching ? 'Atualizando...' : 'Atualizar'}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShowList((value) => !value)}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
-        >
-          {showList ? 'Ocultar lista' : 'Ver lista'}
-        </button>
       </section>
 
       <QueryState
