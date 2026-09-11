@@ -6,6 +6,7 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { PatientsPage } from '@/pages/PatientsPage';
 import { ProfessionalsPage } from '@/pages/ProfessionalsPage';
+import { ProfessionsPage } from '@/pages/ProfessionsPage';
 import { UsersPage } from '@/pages/UsersPage';
 import { AdminRoute, PrivateRoute } from '@/routes/PrivateRoute';
 
@@ -21,6 +22,7 @@ export function App() {
           <Route path="/pacientes" element={<PatientsPage />} />
           <Route path="/profissionais" element={<ProfessionalsPage />} />
           <Route element={<AdminRoute />}>
+            <Route path="/profissoes" element={<ProfessionsPage />} />
             <Route path="/usuarios" element={<UsersPage />} />
           </Route>
         </Route>

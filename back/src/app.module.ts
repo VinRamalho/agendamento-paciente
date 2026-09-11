@@ -11,6 +11,7 @@ import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { PatientsModule } from './patients/patients.module';
 import { ProfessionalsModule } from './professionals/professionals.module';
+import { ProfessionsModule } from './professions/professions.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     HealthModule,
     DashboardModule,
     PatientsModule,
+    ProfessionsModule,
     ProfessionalsModule,
     AppointmentsModule,
   ],

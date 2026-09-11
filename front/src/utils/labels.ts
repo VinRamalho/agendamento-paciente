@@ -1,5 +1,6 @@
 import type { AppointmentStatus } from '@/types/appointment';
 import type { PatientStatus } from '@/types/patient';
+import type { ProfessionCategory } from '@/types/profession';
 import type {
   ProfessionalStatus,
   ProfessionalType,
@@ -24,7 +25,12 @@ export const professionalStatusLabel: Record<ProfessionalStatus, string> = {
 };
 
 export const professionalTypeLabel: Record<ProfessionalType, string> = {
-  DENTIST: 'Dentista',
+  PROFESSIONAL: 'Responsável',
+  ASSISTANT: 'Auxiliar',
+};
+
+export const professionCategoryLabel: Record<ProfessionCategory, string> = {
+  PROFESSIONAL: 'Responsável',
   ASSISTANT: 'Auxiliar',
 };
 

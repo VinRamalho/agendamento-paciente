@@ -88,7 +88,7 @@ export function AgendaPage() {
   const dentistsQuery = useProfessionals({
     page: 1,
     limit: 100,
-    type: 'DENTIST',
+    type: 'PROFESSIONAL',
     status: 'ACTIVE',
   });
   const assistantsQuery = useProfessionals({
@@ -357,18 +357,8 @@ export function AgendaPage() {
         }
         onRetry={() => void refetch()}
       >
-        <AgendaCalendar
-          days={range.days}
-          appointments={appointments}
-          onSlotClick={(date, startTime) => openCreate(date, startTime)}
-          onAppointmentClick={openEdit}
-          onPastSlotClick={() =>
-            toast.error('Não é possível agendar em data ou horário passado')
-          }
-        />
-
         {showList && (
-          <section className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <section className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <QueryState
               isLoading={false}
               isError={false}
@@ -497,6 +487,16 @@ export function AgendaPage() {
             </QueryState>
           </section>
         )}
+
+        <AgendaCalendar
+          days={range.days}
+          appointments={appointments}
+          onSlotClick={(date, startTime) => openCreate(date, startTime)}
+          onAppointmentClick={openEdit}
+          onPastSlotClick={() =>
+            toast.error('Não é possível agendar em data ou horário passado')
+          }
+        />
       </QueryState>
 
       <AppointmentFormModal

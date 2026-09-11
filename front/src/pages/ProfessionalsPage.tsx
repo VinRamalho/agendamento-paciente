@@ -7,6 +7,7 @@ import {
   useProfessionalMutations,
   useProfessionals,
 } from '@/hooks/useProfessionals';
+import { useProfessions } from '@/hooks/useProfessions';
 import type { ProfessionalFormValues } from '@/schemas/professional.schema';
 import type {
   Professional,
@@ -45,6 +46,7 @@ export function ProfessionalsPage() {
   );
 
   const { data, isLoading, isError, error, refetch } = useProfessionals(params);
+  const professionsQuery = useProfessions('ACTIVE');
   const {
     createMutation,
     updateMutation,
@@ -94,7 +96,7 @@ export function ProfessionalsPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-600">
-          Cadastre dentistas e auxiliares. Inativos não entram em novos
+          Cadastre pessoas e vincule à profissão. Inativos não entram em novos
           agendamentos.
         </p>
         <button
@@ -122,10 +124,10 @@ export function ProfessionalsPage() {
               setType(event.target.value as ProfessionalType | '');
             }}
             className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            aria-label="Filtrar por tipo"
+            aria-label="Filtrar por categoria"
           >
-            <option value="">Todos os tipos</option>
-            <option value="DENTIST">Dentista</option>
+            <option value="">Todas as categorias</option>
+            <option value="PROFESSIONAL">Responsável</option>
             <option value="ASSISTANT">Auxiliar</option>
           </select>
           <select
@@ -178,7 +180,7 @@ export function ProfessionalsPage() {
                   <thead className="bg-slate-50 text-slate-500">
                     <tr>
                       <th className="px-4 py-3 font-medium">Nome</th>
-                      <th className="px-4 py-3 font-medium">Tipo</th>
+                      <th className="px-4 py-3 font-medium">Profissão</th>
                       <th className="px-4 py-3 font-medium">Telefone</th>
                       <th className="px-4 py-3 font-medium">E-mail</th>
                       <th className="px-4 py-3 font-medium">Situação</th>
@@ -195,7 +197,8 @@ export function ProfessionalsPage() {
                           {professional.name}
                         </td>
                         <td className="px-4 py-3 text-slate-600">
-                          {professionalTypeLabel[professional.type]}
+                          {professional.profession?.name ??
+                            professionalTypeLabel[professional.type]}
                         </td>
                         <td className="px-4 py-3 text-slate-600">
                           {professional.phone}
@@ -302,6 +305,7 @@ export function ProfessionalsPage() {
       <ProfessionalFormModal
         open={modalOpen}
         professional={editing}
+        professions={professionsQuery.data ?? []}
         submitting={submitting}
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmit}

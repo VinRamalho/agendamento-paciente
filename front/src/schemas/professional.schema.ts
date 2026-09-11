@@ -15,9 +15,7 @@ export const professionalFormSchema = z.object({
     .string()
     .min(1, 'Telefone é obrigatório')
     .refine(isValidPhone, 'Telefone inválido. Use DDD + número'),
-  type: z.enum(['DENTIST', 'ASSISTANT'], {
-    required_error: 'Tipo é obrigatório',
-  }),
+  professionId: z.string().uuid('Selecione uma profissão'),
 });
 
 export type ProfessionalFormValues = z.infer<typeof professionalFormSchema>;

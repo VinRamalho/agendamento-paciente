@@ -1,14 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsString,
+  IsUUID,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ProfessionalType } from '../../common/enums';
 
 export class CreateProfessionalDto {
   @ApiProperty({ example: 'Dr. João Silva' })
@@ -32,7 +31,7 @@ export class CreateProfessionalDto {
   })
   phone!: string;
 
-  @ApiProperty({ enum: ProfessionalType, example: ProfessionalType.DENTIST })
-  @IsEnum(ProfessionalType, { message: 'Tipo de profissional inválido' })
-  type!: ProfessionalType;
+  @ApiProperty({ format: 'uuid', description: 'ID da profissão cadastrada' })
+  @IsUUID('4', { message: 'Profissão inválida' })
+  professionId!: string;
 }

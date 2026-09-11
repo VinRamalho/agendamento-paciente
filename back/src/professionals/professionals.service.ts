@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { ProfessionalStatus } from '../common/enums';
+import { ProfessionsService } from '../professions/professions.service';
 import { CreateProfessionalDto } from './dto/create-professional.dto';
 import { ListProfessionalsQueryDto } from './dto/list-professionals-query.dto';
 import { UpdateProfessionalDto } from './dto/update-professional.dto';
@@ -26,17 +27,23 @@ export class ProfessionalsService {
   constructor(
     @InjectRepository(Professional)
     private readonly professionalRepository: Repository<Professional>,
+    private readonly professionsService: ProfessionsService,
   ) {}
 
   async create(dto: CreateProfessionalDto): Promise<Professional> {
     const email = dto.email.trim().toLowerCase();
     await this.ensureUniqueEmail(email);
 
+    const profession = await this.professionsService.findActiveById(
+      dto.professionId,
+    );
+
     const professional = this.professionalRepository.create({
       name: dto.name.trim(),
       email,
       phone: dto.phone.trim(),
-      type: dto.type,
+      professionId: profession.id,
+      type: profession.category,
       status: ProfessionalStatus.ACTIVE,
     });
 
@@ -69,6 +76,7 @@ export class ProfessionalsService {
       order: { name: 'ASC' },
       skip,
       take: limit,
+      relations: { profession: true },
     });
 
     return {
@@ -85,6 +93,7 @@ export class ProfessionalsService {
   async findOne(id: string): Promise<Professional> {
     const professional = await this.professionalRepository.findOne({
       where: { id },
+      relations: { profession: true },
     });
     if (!professional) {
       throw new NotFoundException('Profissional não encontrado');
@@ -101,8 +110,12 @@ export class ProfessionalsService {
     if (dto.phone !== undefined) {
       professional.phone = dto.phone.trim();
     }
-    if (dto.type !== undefined) {
-      professional.type = dto.type;
+    if (dto.professionId !== undefined) {
+      const profession = await this.professionsService.findActiveById(
+        dto.professionId,
+      );
+      professional.professionId = profession.id;
+      professional.type = profession.category;
     }
     if (dto.email !== undefined) {
       const email = dto.email.trim().toLowerCase();

@@ -171,9 +171,9 @@ export function AppointmentFormModal({
         </div>
 
         <div>
-          <p className="mb-1 text-sm font-medium">Dentistas *</p>
+          <p className="mb-1 text-sm font-medium">Profissionais *</p>
           <p className="mb-2 text-xs text-slate-500">
-            Busque e selecione um ou mais dentistas.
+            Busque e selecione um ou mais profissionais responsáveis.
           </p>
           <Controller
             name="responsibleProfessionalIds"
@@ -183,9 +183,9 @@ export function AppointmentFormModal({
                 options={dentistOptions}
                 value={field.value ?? []}
                 onChange={field.onChange}
-                placeholder="Buscar dentistas..."
+                placeholder="Buscar profissionais..."
                 searchPlaceholder="Digite o nome..."
-                emptyLabel="Nenhum dentista ativo cadastrado."
+                emptyLabel="Nenhum profissional ativo cadastrado."
               />
             )}
           />

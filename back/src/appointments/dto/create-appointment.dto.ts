@@ -22,12 +22,12 @@ export class CreateAppointmentDto {
 
   @ApiProperty({
     type: [String],
-    description: 'Um ou mais dentistas responsáveis',
+    description: 'Um ou mais profissionais responsáveis',
   })
-  @IsArray({ message: 'Dentistas inválidos' })
-  @ArrayMinSize(1, { message: 'Informe ao menos um dentista' })
-  @ArrayUnique({ message: 'Dentistas duplicados não são permitidos' })
-  @IsUUID('4', { each: true, message: 'Dentista inválido' })
+  @IsArray({ message: 'Profissionais inválidos' })
+  @ArrayMinSize(1, { message: 'Informe ao menos um profissional' })
+  @ArrayUnique({ message: 'Profissionais duplicados não são permitidos' })
+  @IsUUID('4', { each: true, message: 'Profissional inválido' })
   responsibleProfessionalIds!: string[];
 
   @ApiPropertyOptional({

@@ -94,7 +94,7 @@ export class AppointmentsService {
 
     if (merged.responsibleProfessionalIds.length === 0) {
       throw new BadRequestException(
-        'Agendamento precisa de ao menos um dentista',
+        'Agendamento precisa de ao menos um profissional',
       );
     }
 
@@ -219,13 +219,13 @@ export class AppointmentsService {
     const assistantIds = [...new Set(input.assistantProfessionalIds)];
 
     if (dentistIds.length === 0) {
-      throw new BadRequestException('Informe ao menos um dentista');
+      throw new BadRequestException('Informe ao menos um profissional');
     }
 
     const overlap = dentistIds.filter((id) => assistantIds.includes(id));
     if (overlap.length > 0) {
       throw new BadRequestException(
-        'O mesmo profissional não pode ser dentista e auxiliar no mesmo atendimento',
+        'O mesmo profissional não pode ser responsável e auxiliar no mesmo atendimento',
       );
     }
 
@@ -264,17 +264,19 @@ export class AppointmentsService {
       id: In(dentistIds),
     });
     if (dentists.length !== dentistIds.length) {
-      throw new NotFoundException('Um ou mais dentistas não foram encontrados');
+      throw new NotFoundException(
+        'Um ou mais profissionais não foram encontrados',
+      );
     }
     for (const dentist of dentists) {
       if (dentist.status !== ProfessionalStatus.ACTIVE) {
         throw new BadRequestException(
-          `Dentista inativo não pode ser agendado: ${dentist.name}`,
+          `Profissional inativo não pode ser agendado: ${dentist.name}`,
         );
       }
-      if (dentist.type !== ProfessionalType.DENTIST) {
+      if (dentist.type !== ProfessionalType.PROFESSIONAL) {
         throw new BadRequestException(
-          `Profissional deve ser dentista: ${dentist.name}`,
+          `Responsável deve ser do tipo profissional: ${dentist.name}`,
         );
       }
     }

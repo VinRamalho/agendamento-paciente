@@ -11,7 +11,7 @@ const baseAppointmentFormSchema = z.object({
   patientId: z.string().uuid('Selecione o paciente'),
   responsibleProfessionalIds: z
     .array(z.string().uuid())
-    .min(1, 'Selecione ao menos um dentista'),
+    .min(1, 'Selecione ao menos um profissional'),
   assistantProfessionalIds: z.array(z.string().uuid()).default([]),
   date: z.string().min(1, 'Data é obrigatória'),
   startTime: z

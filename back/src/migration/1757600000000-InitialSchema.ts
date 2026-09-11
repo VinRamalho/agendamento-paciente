@@ -23,7 +23,7 @@ export class InitialSchema1757600000000 implements MigrationInterface {
       CREATE TYPE "public"."patient_status_enum" AS ENUM('PENDING', 'CONFIRMED', 'INACTIVE')
     `);
     await queryRunner.query(`
-      CREATE TYPE "public"."professional_type_enum" AS ENUM('DENTIST', 'ASSISTANT')
+      CREATE TYPE "public"."professional_type_enum" AS ENUM('PROFESSIONAL', 'ASSISTANT')
     `);
     await queryRunner.query(`
       CREATE TYPE "public"."professional_status_enum" AS ENUM('ACTIVE', 'INACTIVE')
@@ -153,6 +153,54 @@ export class InitialSchema1757600000000 implements MigrationInterface {
 
     await queryRunner.createTable(
       new Table({
+        name: 'professions',
+        columns: [
+          {
+            name: 'id',
+            type: 'uuid',
+            isPrimary: true,
+            generationStrategy: 'uuid',
+            default: 'uuid_generate_v4()',
+          },
+          { name: 'name', type: 'varchar', length: '255', isUnique: true },
+          { name: 'category', type: 'professional_type_enum' },
+          {
+            name: 'status',
+            type: 'professional_status_enum',
+            default: "'ACTIVE'",
+          },
+          {
+            name: 'created_at',
+            type: 'timestamptz',
+            default: 'CURRENT_TIMESTAMP',
+          },
+          {
+            name: 'updated_at',
+            type: 'timestamptz',
+            default: 'CURRENT_TIMESTAMP',
+          },
+        ],
+      }),
+      true,
+    );
+
+    await queryRunner.createIndex(
+      'professions',
+      new TableIndex({
+        name: 'IDX_professions_status',
+        columnNames: ['status'],
+      }),
+    );
+
+    await queryRunner.query(`
+      INSERT INTO "professions" ("name", "category", "status")
+      VALUES
+        ('Dentista', 'PROFESSIONAL', 'ACTIVE'),
+        ('Assistente', 'ASSISTANT', 'ACTIVE')
+    `);
+
+    await queryRunner.createTable(
+      new Table({
         name: 'professionals',
         columns: [
           {
@@ -165,6 +213,7 @@ export class InitialSchema1757600000000 implements MigrationInterface {
           { name: 'name', type: 'varchar', length: '255' },
           { name: 'email', type: 'varchar', length: '255', isUnique: true },
           { name: 'phone', type: 'varchar', length: '20' },
+          { name: 'profession_id', type: 'uuid' },
           { name: 'type', type: 'professional_type_enum' },
           {
             name: 'status',
@@ -184,6 +233,17 @@ export class InitialSchema1757600000000 implements MigrationInterface {
         ],
       }),
       true,
+    );
+
+    await queryRunner.createForeignKey(
+      'professionals',
+      new TableForeignKey({
+        name: 'FK_professionals_profession',
+        columnNames: ['profession_id'],
+        referencedTableName: 'professions',
+        referencedColumnNames: ['id'],
+        onDelete: 'RESTRICT',
+      }),
     );
 
     await queryRunner.createIndex(
@@ -359,6 +419,7 @@ export class InitialSchema1757600000000 implements MigrationInterface {
     await queryRunner.dropTable('appointment_participants', true);
     await queryRunner.dropTable('appointments', true);
     await queryRunner.dropTable('professionals', true);
+    await queryRunner.dropTable('professions', true);
     await queryRunner.dropTable('patients', true);
     await queryRunner.dropTable('users', true);
 

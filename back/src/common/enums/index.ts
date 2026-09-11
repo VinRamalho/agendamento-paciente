@@ -15,7 +15,7 @@ export enum PatientStatus {
 }
 
 export enum ProfessionalType {
-  DENTIST = 'DENTIST',
+  PROFESSIONAL = 'PROFESSIONAL',
   ASSISTANT = 'ASSISTANT',
 }
 

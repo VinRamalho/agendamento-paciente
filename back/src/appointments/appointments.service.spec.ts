@@ -96,7 +96,7 @@ describe('AppointmentsService', () => {
         id: 'd1',
         name: 'Dr. João',
         status: ProfessionalStatus.ACTIVE,
-        type: ProfessionalType.DENTIST,
+        type: ProfessionalType.PROFESSIONAL,
       },
     ]);
 

@@ -1,11 +1,20 @@
-export type ProfessionalType = 'DENTIST' | 'ASSISTANT';
+export type ProfessionalType = 'PROFESSIONAL' | 'ASSISTANT';
 export type ProfessionalStatus = 'ACTIVE' | 'INACTIVE';
+
+export type ProfessionalProfession = {
+  id: string;
+  name: string;
+  category: ProfessionalType;
+  status: ProfessionalStatus;
+};
 
 export type Professional = {
   id: string;
   name: string;
   email: string;
   phone: string;
+  professionId: string;
+  profession?: ProfessionalProfession;
   type: ProfessionalType;
   status: ProfessionalStatus;
   createdAt: string;
@@ -28,7 +37,7 @@ export type ProfessionalInput = {
   name: string;
   email: string;
   phone: string;
-  type: ProfessionalType;
+  professionId: string;
 };
 
 export type ProfessionalsListParams = {

@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import {
+  Briefcase,
   CalendarDays,
   LayoutDashboard,
   Shield,
@@ -33,7 +34,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const navItems = [
     ...baseNavItems,
     ...(isAdmin
-      ? ([{ to: '/usuarios', label: 'Usuários', icon: Shield, end: false }] as const)
+      ? ([
+          { to: '/profissoes', label: 'Profissões', icon: Briefcase, end: false },
+          { to: '/usuarios', label: 'Usuários', icon: Shield, end: false },
+        ] as const)
       : []),
   ];
 

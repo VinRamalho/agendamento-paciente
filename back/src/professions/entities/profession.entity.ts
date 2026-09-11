@@ -3,45 +3,28 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  JoinColumn,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ProfessionalStatus, ProfessionalType } from '../../common/enums';
-import { Profession } from '../../professions/entities/profession.entity';
 
-@Entity('professionals')
-export class Professional {
+@Entity('professions')
+export class Profession {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, unique: true })
   name!: string;
 
-  @Column({ type: 'varchar', length: 255, unique: true })
-  email!: string;
-
-  @Column({ type: 'varchar', length: 20 })
-  phone!: string;
-
-  @Column({ name: 'profession_id', type: 'uuid' })
-  professionId!: string;
-
-  @ManyToOne(() => Profession, { eager: true })
-  @JoinColumn({ name: 'profession_id' })
-  profession!: Profession;
-
-  /** Espelho de profession.category — usado em filtros e regras de agenda. */
+  /** Papel na agenda: responsável (PROFESSIONAL) ou auxiliar (ASSISTANT). */
   @Column({
-    name: 'type',
     type: 'enum',
     enum: ProfessionalType,
     enumName: 'professional_type_enum',
   })
-  type!: ProfessionalType;
+  category!: ProfessionalType;
 
-  @Index('IDX_professionals_status')
+  @Index('IDX_professions_status')
   @Column({
     type: 'enum',
     enum: ProfessionalStatus,

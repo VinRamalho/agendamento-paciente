@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConflictException } from '@nestjs/common';
 import { ProfessionalStatus, ProfessionalType } from '../common/enums';
+import { ProfessionsService } from '../professions/professions.service';
 import { Professional } from './entities/professional.entity';
 import { ProfessionalsService } from './professionals.service';
 
@@ -15,6 +16,10 @@ describe('ProfessionalsService', () => {
     findAndCount: jest.fn(),
   };
 
+  const professionsService = {
+    findActiveById: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -22,6 +27,10 @@ describe('ProfessionalsService', () => {
         {
           provide: getRepositoryToken(Professional),
           useValue: repository,
+        },
+        {
+          provide: ProfessionsService,
+          useValue: professionsService,
         },
       ],
     }).compile();
@@ -36,10 +45,17 @@ describe('ProfessionalsService', () => {
       name: 'Dr. João',
       email: 'joao@agendamento.local',
       phone: '11999990001',
-      type: ProfessionalType.DENTIST,
+      professionId: 'prof-1',
+      type: ProfessionalType.PROFESSIONAL,
       status: ProfessionalStatus.ACTIVE,
     };
 
+    professionsService.findActiveById.mockResolvedValue({
+      id: 'prof-1',
+      name: 'Dentista',
+      category: ProfessionalType.PROFESSIONAL,
+      status: ProfessionalStatus.ACTIVE,
+    });
     repository.findOne.mockResolvedValue(null);
     repository.create.mockReturnValue(created);
     repository.save.mockResolvedValue(created);
@@ -48,7 +64,7 @@ describe('ProfessionalsService', () => {
       name: 'Dr. João',
       email: 'joao@agendamento.local',
       phone: '11999990001',
-      type: ProfessionalType.DENTIST,
+      professionId: 'prof-1',
     });
 
     expect(result.status).toBe(ProfessionalStatus.ACTIVE);
@@ -56,6 +72,8 @@ describe('ProfessionalsService', () => {
       expect.objectContaining({
         status: ProfessionalStatus.ACTIVE,
         email: 'joao@agendamento.local',
+        professionId: 'prof-1',
+        type: ProfessionalType.PROFESSIONAL,
       }),
     );
   });
@@ -71,7 +89,7 @@ describe('ProfessionalsService', () => {
         name: 'Outro',
         email: 'joao@agendamento.local',
         phone: '11999990002',
-        type: ProfessionalType.ASSISTANT,
+        professionId: 'prof-2',
       }),
     ).rejects.toBeInstanceOf(ConflictException);
   });
