@@ -17,7 +17,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-30 flex min-h-[76px] items-center justify-between border-b border-slate-100 bg-white/95 px-4 backdrop-blur sm:px-7">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -28,8 +28,8 @@ export function Header({ title, onMenuClick }: HeaderProps) {
           <Menu className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
-          <p className="hidden text-xs text-slate-500 sm:block">
+          <p className="hidden text-[11px] font-medium text-slate-400 sm:block">Cl�nica <span className="mx-1.5">/</span> <span className="text-slate-500">{title}</span></p>\n          <h1 className="text-lg font-semibold tracking-tight text-slate-900 sm:mt-0.5">{title}</h1>
+          <p className="hidden text-xs text-slate-500 lg:block">
             Gestão de atendimentos odontológicos
           </p>
         </div>
@@ -43,7 +43,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
         <button
           type="button"
           onClick={handleLogout}
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:border-emerald-200 hover:bg-emerald-50"
         >
           <LogOut className="h-4 w-4" aria-hidden />
           Sair
@@ -52,3 +52,4 @@ export function Header({ title, onMenuClick }: HeaderProps) {
     </header>
   );
 }
+

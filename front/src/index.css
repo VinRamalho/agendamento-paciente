@@ -4,23 +4,28 @@
 
 :root {
   color-scheme: light;
-  font-family:
-    'Segoe UI',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: #263445;
+  background-color: #eef8f7;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: radial-gradient(ellipse at 8% 0%, rgba(124, 222, 194, 0.18), transparent 34rem), linear-gradient(180deg, #eff9f8 0, #f7fbfa 18rem, #f6f8f8 100%);
 }
 
-#root {
-  min-height: 100vh;
+#root { min-height: 100vh; }
+
+button, input, select, textarea {
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #72c9a8;
+  box-shadow: 0 0 0 3px rgba(114, 201, 168, 0.18);
 }

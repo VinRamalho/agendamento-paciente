@@ -54,12 +54,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-[min(100%,16rem)] flex-col border-r border-slate-200 bg-white transition-transform lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex w-[min(100%,16rem)] flex-col border-r border-slate-100 bg-white transition-transform lg:static lg:translate-x-0',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
         aria-label="Navegação principal"
       >
-        <div className="flex h-14 items-center justify-between border-b border-slate-200 px-4 sm:h-16 sm:px-5">
+        <div className="flex h-[76px] items-center justify-between border-b border-slate-100 px-5 sm:px-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-primary">
               Clínica
@@ -76,7 +76,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+        <nav className="flex-1 space-y-1.5 overflow-y-auto px-3 py-6 sm:px-4">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -85,9 +85,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               onClick={onClose}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
+                  'flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition',
                   isActive
-                    ? 'bg-blue-50 text-primary'
+                    ? 'bg-emerald-50 text-[#28795d] shadow-[inset_3px_0_0_#72c9a8]'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
                 )
               }
@@ -101,3 +101,4 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     </>
   );
 }
+
