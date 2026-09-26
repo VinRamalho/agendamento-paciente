@@ -45,7 +45,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <>
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-slate-900/40 transition-opacity lg:hidden',
+          'fixed inset-0 z-40 bg-slate-900/40 transition-opacity md:hidden',
           open ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
         onClick={onClose}
@@ -54,8 +54,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-[min(100%,16rem)] flex-col border-r border-slate-100 bg-white transition-transform lg:static lg:translate-x-0',
-          open ? 'translate-x-0' : '-translate-x-full',
+          'fixed inset-y-0 left-0 z-50 flex w-[min(100%,17rem)] flex-col border-r border-slate-100 bg-white transition-transform md:static md:w-56 md:translate-x-0 md:shrink-0 lg:w-64',
+          open ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
         aria-label="Navegação principal"
       >
@@ -68,7 +68,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           </div>
           <button
             type="button"
-            className="rounded-md p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+            className="rounded-md p-2 text-slate-500 hover:bg-slate-100 md:hidden"
             onClick={onClose}
             aria-label="Fechar menu"
           >
