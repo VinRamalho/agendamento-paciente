@@ -5,9 +5,9 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#3a9b78',
+          DEFAULT: '#167d9a',
           foreground: '#ffffff',
-          hover: '#2d8063',
+          hover: '#12677f',
         },
         success: {
           DEFAULT: '#16a34a',
@@ -22,4 +22,3 @@ export default {
   },
   plugins: [],
 };
-

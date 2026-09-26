@@ -87,7 +87,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 cn(
                   'flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition',
                   isActive
-                    ? 'bg-emerald-50 text-[#28795d] shadow-[inset_3px_0_0_#72c9a8]'
+                    ? 'bg-cyan-50 text-primary shadow-[inset_3px_0_0_#48a9b8]'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
                 )
               }
@@ -101,4 +101,3 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     </>
   );
 }
-

@@ -334,8 +334,8 @@ export function AgendaPage() {
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition',
                   showList
-                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                    : 'border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100',
+                    ? 'bg-primary text-white hover:bg-primary-hover'
+                    : 'border border-cyan-200 bg-cyan-50 text-cyan-900 hover:bg-cyan-100',
                 )}
               >
                 <List className="h-4 w-4" aria-hidden />
