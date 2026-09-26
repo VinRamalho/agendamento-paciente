@@ -22,7 +22,7 @@ function escapeIcsText(value: string): string {
 
 export function buildAppointmentsIcs(
   appointments: Appointment[],
-  calendarName = 'Agendamento Odontológico',
+  calendarName = 'Agendamentos',
 ): string {
   const now = toIcsUtc(new Date());
   const events = appointments
@@ -64,7 +64,7 @@ export function buildAppointmentsIcs(
   return [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Agendamento Odontologico//PT',
+    'PRODID:-//Agendamento//PT',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${escapeIcsText(calendarName)}`,

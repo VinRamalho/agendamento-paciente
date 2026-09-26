@@ -17,7 +17,7 @@ type AppointmentFormModalProps = {
   appointment?: Appointment | null;
   createDefaults?: Partial<AppointmentFormValues> | null;
   patients: Patient[];
-  dentists: Professional[];
+  professionals: Professional[];
   assistants: Professional[];
   submitting: boolean;
   onClose: () => void;
@@ -40,7 +40,7 @@ export function AppointmentFormModal({
   appointment,
   createDefaults,
   patients,
-  dentists,
+  professionals,
   assistants,
   submitting,
   onClose,
@@ -83,9 +83,9 @@ export function AppointmentFormModal({
       ? format(new Date(appointment.startAt), 'yyyy-MM-dd')
       : today;
 
-  const dentistOptions = useMemo(
-    () => dentists.map((item) => ({ value: item.id, label: item.name })),
-    [dentists],
+  const professionalOptions = useMemo(
+    () => professionals.map((item) => ({ value: item.id, label: item.name })),
+    [professionals],
   );
   const assistantOptions = useMemo(
     () => assistants.map((item) => ({ value: item.id, label: item.name })),
@@ -180,7 +180,7 @@ export function AppointmentFormModal({
             control={control}
             render={({ field }) => (
               <MultiSelectSearch
-                options={dentistOptions}
+                options={professionalOptions}
                 value={field.value ?? []}
                 onChange={field.onChange}
                 placeholder="Buscar profissionais..."

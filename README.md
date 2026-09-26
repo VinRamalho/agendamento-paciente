@@ -1,6 +1,6 @@
-# Agendamento Odontológico
+# Sistema de Agendamento
 
-Sistema web (MVP) para gerenciamento de pacientes, profissionais e atendimentos odontológicos.
+Sistema web (MVP) para gerenciamento de clientes, profissionais e agendamentos de diferentes áreas de atuação.
 
 ## Stack
 
@@ -206,7 +206,7 @@ Cobertura crítica no backend: auth, patients, professionals, appointments (conf
 - `users` — ADMIN / USER
 - `patients` — PENDING / CONFIRMED / INACTIVE
 - `professionals` — ligado a `professions` (cadastro admin) + ACTIVE / INACTIVE
-- `professions` — nome livre (Dentista, Assistente…) + categoria RESPONSÁVEL/AUXILIAR
+- `professions` — nome livre (ex.: Psicólogo, Nutricionista, Recepcionista) + categoria RESPONSÁVEL/AUXILIAR
 - `appointments` — `start_at`, `end_at`, duração, status
 - `appointment_participants` — RESPONSIBLE / ASSISTANT
 

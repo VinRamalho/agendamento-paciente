@@ -9,7 +9,7 @@ import {
 import { ProfessionalType } from '../../common/enums';
 
 export class CreateProfessionDto {
-  @ApiProperty({ example: 'Dentista' })
+  @ApiProperty({ example: 'Psicólogo' })
   @IsString()
   @IsNotEmpty({ message: 'Nome é obrigatório' })
   @MinLength(2, { message: 'Nome deve ter ao menos 2 caracteres' })

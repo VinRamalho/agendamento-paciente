@@ -4,7 +4,7 @@ set -eu
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "==> Agendamento Odontológico — inicialização via Docker"
+echo "==> Sistema de Agendamento — inicialização via Docker"
 
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1

@@ -48,9 +48,9 @@ async function bootstrap(): Promise<void> {
   app.setGlobalPrefix('api');
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Agendamento Odontológico API')
+    .setTitle('Agendamento API')
     .setDescription(
-      'API REST para gerenciamento de pacientes, profissionais e agendamentos odontológicos.',
+      'API REST para gerenciamento de clientes, profissionais e agendamentos.',
     )
     .setVersion('1.0.0')
     .addBearerAuth(

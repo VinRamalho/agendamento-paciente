@@ -215,14 +215,18 @@ export class AppointmentsService {
       );
     }
 
-    const dentistIds = [...new Set(input.responsibleProfessionalIds)];
+    const responsibleProfessionalIds = [
+      ...new Set(input.responsibleProfessionalIds),
+    ];
     const assistantIds = [...new Set(input.assistantProfessionalIds)];
 
-    if (dentistIds.length === 0) {
+    if (responsibleProfessionalIds.length === 0) {
       throw new BadRequestException('Informe ao menos um profissional');
     }
 
-    const overlap = dentistIds.filter((id) => assistantIds.includes(id));
+    const overlap = responsibleProfessionalIds.filter((id) =>
+      assistantIds.includes(id),
+    );
     if (overlap.length > 0) {
       throw new BadRequestException(
         'O mesmo profissional não pode ser responsável e auxiliar no mesmo atendimento',
@@ -260,23 +264,23 @@ export class AppointmentsService {
       );
     }
 
-    const dentists = await this.professionalRepository.findBy({
-      id: In(dentistIds),
+    const responsibleProfessionals = await this.professionalRepository.findBy({
+      id: In(responsibleProfessionalIds),
     });
-    if (dentists.length !== dentistIds.length) {
+    if (responsibleProfessionals.length !== responsibleProfessionalIds.length) {
       throw new NotFoundException(
         'Um ou mais profissionais não foram encontrados',
       );
     }
-    for (const dentist of dentists) {
-      if (dentist.status !== ProfessionalStatus.ACTIVE) {
+    for (const professional of responsibleProfessionals) {
+      if (professional.status !== ProfessionalStatus.ACTIVE) {
         throw new BadRequestException(
-          `Profissional inativo não pode ser agendado: ${dentist.name}`,
+          `Profissional inativo não pode ser agendado: ${professional.name}`,
         );
       }
-      if (dentist.type !== ProfessionalType.PROFESSIONAL) {
+      if (professional.type !== ProfessionalType.PROFESSIONAL) {
         throw new BadRequestException(
-          `Responsável deve ser do tipo profissional: ${dentist.name}`,
+          `Responsável deve ser do tipo profissional: ${professional.name}`,
         );
       }
     }
@@ -305,7 +309,7 @@ export class AppointmentsService {
       }
     }
 
-    const professionalIds = [...dentistIds, ...assistantIds];
+    const professionalIds = [...responsibleProfessionalIds, ...assistantIds];
     await this.assertNoConflicts(
       professionalIds,
       startAt,
@@ -350,7 +354,7 @@ export class AppointmentsService {
       }
 
       const participants = [
-        ...dentistIds.map((professionalId) =>
+        ...responsibleProfessionalIds.map((professionalId) =>
           participantRepo.create({
             appointmentId: appointment.id,
             professionalId,

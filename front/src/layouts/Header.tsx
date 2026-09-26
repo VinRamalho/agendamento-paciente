@@ -36,7 +36,7 @@ export function Header({ title, onMenuClick }: HeaderProps) {
             {title}
           </h1>
           <p className="hidden text-xs text-slate-500 lg:block">
-            Gestão de atendimentos odontológicos
+            Gestão de atendimentos e agenda
           </p>
         </div>
       </div>

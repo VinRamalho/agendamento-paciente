@@ -85,7 +85,7 @@ export function AgendaPage() {
     limit: 100,
     status: 'CONFIRMED',
   });
-  const dentistsQuery = useProfessionals({
+  const professionalsQuery = useProfessionals({
     page: 1,
     limit: 100,
     type: 'PROFESSIONAL',
@@ -505,7 +505,7 @@ export function AgendaPage() {
         appointment={editing}
         createDefaults={createDefaults}
         patients={patientsQuery.data?.data ?? []}
-        dentists={dentistsQuery.data?.data ?? []}
+        professionals={professionalsQuery.data?.data ?? []}
         assistants={assistantsQuery.data?.data ?? []}
         submitting={submitting}
         onClose={() => setModalOpen(false)}

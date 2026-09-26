@@ -96,7 +96,7 @@ export function ProfessionsPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-slate-600">
-          Cadastre as profissões da clínica (ex.: Dentista, Assistente). Somente
+          Cadastre as profissões e funções da equipe (ex.: Psicólogo, Nutricionista, Recepcionista). Somente
           administradores. A categoria define se a pessoa pode ser responsável
           ou auxiliar no agendamento.
         </p>
@@ -121,7 +121,7 @@ export function ProfessionsPage() {
               : 'Erro ao carregar profissões.'
           }
           emptyTitle="Nenhuma profissão"
-          emptyDescription="Cadastre Dentista, Assistente ou outras funções."
+          emptyDescription="Cadastre as profissões e funções da sua equipe."
           emptyActionLabel="Nova profissão"
           onEmptyAction={openCreate}
           onRetry={() => void refetch()}
@@ -227,7 +227,7 @@ export function ProfessionsPage() {
             </label>
             <input
               id="name"
-              placeholder="Ex.: Dentista"
+              placeholder="Ex.: Psicólogo"
               className="w-full rounded-lg border border-slate-300 px-3 py-2.5"
               {...register('name')}
             />

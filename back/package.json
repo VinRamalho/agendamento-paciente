@@ -1,7 +1,7 @@
 {
   "name": "agendamento-back",
   "version": "0.1.0",
-  "description": "API do sistema de agendamento odontológico",
+  "description": "API do sistema de agendamento de serviços profissionais",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
