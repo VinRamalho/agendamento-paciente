@@ -1,4 +1,5 @@
 import type { Appointment } from '@/types/appointment';
+import { appointmentStatusLabel } from '@/utils/labels';
 
 function pad(value: number): string {
   return String(value).padStart(2, '0');
@@ -40,12 +41,12 @@ export function buildAppointmentsIcs(
       );
       const description = escapeIcsText(
         [
-          `Situação: ${appointment.status}`,
+          `Situação: ${appointmentStatusLabel[appointment.status]}`,
           team ? `Equipe: ${team}` : '',
           appointment.notes ? `Obs: ${appointment.notes}` : '',
         ]
           .filter(Boolean)
-          .join('\\n'),
+          .join('\n'),
       );
 
       return [
@@ -96,7 +97,14 @@ export function openGoogleCalendarEvent(appointment: Appointment): void {
   const text = encodeURIComponent(
     `Consulta: ${appointment.patient?.name ?? 'Paciente'}`,
   );
-  const details = encodeURIComponent(appointment.notes ?? '');
+  const details = encodeURIComponent(
+    [
+      `Situação: ${appointmentStatusLabel[appointment.status]}`,
+      appointment.notes ? `Obs: ${appointment.notes}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n'),
+  );
   const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}`;
   window.open(url, '_blank', 'noopener,noreferrer');
 }
